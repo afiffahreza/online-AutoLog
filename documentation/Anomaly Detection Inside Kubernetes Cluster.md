@@ -1,5 +1,21 @@
 # Anomaly Detection Inside Kubernetes Cluster
 
-## What is Anomaly?
+This documentation is about the high level structure of my final project report with some necessary links.
+
+## Kubernetes
+
+Explain kubenetes here.
+
+Prometheus.
+
+How to stream data.
+
+## Anomaly Detection
 
 Anomalies are patterns in data that do not conform to the normal behavior and can be indicators for problems in the corresponding domain of measurement.
+
+### Time Series Forecasting
+
+Prophet
+
+SKLearn
