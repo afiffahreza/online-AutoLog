@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: order
+  name: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: order
+    spec:
+      containers:
+      - image: docker.io/ewolff/microservice-kubernetes-demo-order:latest
+        name: order
+        ports:
+        - containerPort: 8080
+        resources: {}
+status: {}
