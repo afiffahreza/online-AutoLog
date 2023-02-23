@@ -15,3 +15,6 @@ kubectl apply -k $pwd/k8s/ingress-nginx/overlays/local
 # Apply apps
 kubectl apply -k $pwd/k8s/app/helloworld/overlays/local
 kubectl apply -k $pwd/k8s/app/echo/overlays/local
+
+# Apply loki stack
+helm upgrade --values k8s/loki-stack/values.yaml --install loki -n loki-stack grafana/loki-stack
