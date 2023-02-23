@@ -16,6 +16,13 @@ spec:
             name: hello
             port:
               number: 8000
+      - pathType: Prefix
+        path: /echo(/|$)(.*)
+        backend:
+          service:
+            name: echo
+            port:
+              number: 80
       # - pathType: Prefix
       #   path: /catalog(/|$)(.*)
       #   backend:
