@@ -3,24 +3,24 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: catalog
-  name: catalog
+    app: echo
+  name: echo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: catalog
+      app: echo
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: catalog
+        app: echo
     spec:
       containers:
-      - image: docker.io/ewolff/microservice-kubernetes-demo-catalog:latest
-        name: catalog
+      - image: afiffahreza/echo-app:3
+        name: echo
         ports:
-        - containerPort: 8080
+        - containerPort: 8000
         resources: {}
 status: {}

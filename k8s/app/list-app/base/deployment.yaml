@@ -3,23 +3,23 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: hello
-  name: hello
+    app: list
+  name: list
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello
+      app: list
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: hello
+        app: list
     spec:
       containers:
-      - image: crccheck/hello-world:latest
-        name: hello
+      - image: afiffahreza/list-app:3
+        name: list
         ports:
         - containerPort: 8000
         resources: {}
