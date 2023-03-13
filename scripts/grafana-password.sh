@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-kx kind-autolog
+kubectx kind-autolog
 
 # Get Grafana password
-kg secret loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl get secret loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
