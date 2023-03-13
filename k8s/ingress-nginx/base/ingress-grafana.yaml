@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: grafana-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
   namespace: loki-stack
 spec:
   rules:
