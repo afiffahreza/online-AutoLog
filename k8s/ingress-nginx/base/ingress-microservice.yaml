@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-microservices
+  name: ingress-microservice
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
   namespace: default
@@ -9,31 +9,24 @@ spec:
   rules:
   - http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: apache
-            port:
-              number: 80
       - path: /catalog(/|$)(.*)
         pathType: Prefix
         backend:
           service:
             name: catalog
             port:
-              number: 8080
+              number: 8000
       - path: /customer(/|$)(.*)
         pathType: Prefix
         backend:
           service:
             name: customer
             port:
-              number: 8080
+              number: 8000
       - path: /order(/|$)(.*)
         pathType: Prefix
         backend:
           service:
             name: order
             port:
-              number: 8080
+              number: 8000
