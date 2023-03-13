@@ -23,3 +23,7 @@ kubectl apply -k k8s/microservices/overlays/local
 
 # Apply ingress-nginx controllers & ingresses
 kubectl apply -k k8s/ingress-nginx/overlays/local
+
+# Print grafana password
+grafana_pass=$(kubectl get secret loki-grafana -n loki-stack -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
+echo "Grafana password: $grafana_pass"
