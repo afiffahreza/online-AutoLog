@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: order
+  name: order
+spec:
+  template:
+    spec:
+      containers:
+      - name: order
+        env:
+        - name: CUSTOMER_HOST
+          value: "http://customer.default.svc.cluster.local:8000"
+        - name: CATALOG_HOST
+          value: "http://catalog.default.svc.cluster.local:8000"

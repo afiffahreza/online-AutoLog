@@ -3,6 +3,5 @@ kind: Kustomization
 
 resources:
 - deploy.yaml
-- ingress-app.yaml
 - ingress-grafana.yaml
 - ingress-microservice.yaml
