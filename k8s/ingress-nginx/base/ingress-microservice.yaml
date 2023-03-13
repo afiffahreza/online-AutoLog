@@ -9,7 +9,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /apache(/|$)(.*)
+      - path: /
         pathType: Prefix
         backend:
           service:
