@@ -32,6 +32,9 @@ special_chars = '!@#$%^&*()+{}|:"<>?=[]\;\',./-_'
 # Remove special characters and punctuation from the log lines
 lines = lines.withColumn("value", translate(lines.value, special_chars, len(special_chars)*' '))
 
+# Remove double quotes, singular - and _ characters from the log lines
+# lines = lines.withColumn("value", regexp_replace(lines.value, r'(\s-\s)|(\s_\s)|"+', ' '))
+
 # Replace numbers
 httpone_regex = r'\s1[01][0-9]\s'
 httptwo_regex = r'\s2[02][0-9]\s'
@@ -66,9 +69,7 @@ lines = lines.withColumn("value", upperCase(lines.value))
 # Given a chunk after parsing, term weighting is done by:
 # (i) tokening the log lines of the chunk into terms,
 # (ii) counting the occurrences of the terms within the chunk,
-# (iii) computing a numeric score for the chunk based on the occurrences of the terms.
-
-# === (i) ===
+# (iii) storing the baseline terms to db.
 
 # Split the lines into words
 words = lines.select(
@@ -80,17 +81,17 @@ words = lines.select(
 # Remove empty words
 words = words.filter(words.word != "")
 
-# === (ii) ===
-
 # Count the occurrences of the terms within the chunk
 wordCounts = words.groupBy("word").count()
 
-# === (iii) ===
+# Convert the word counts to JSON
+wordCounts = wordCounts.toJSON()
 
-# Access db to get the total number of terms in all chunks
+# Push the word counts to the database
+# TO DO connect uwu
 
-# Compute a numeric score for the chunk based on the occurrences of the terms using log entropy
-
+# Output the result to a json file, overwriting the existing file
+wordCounts.coalesce(1).write.mode("overwrite").json("output")
 
 # Stop the Spark session
 spark.stop()
