@@ -85,7 +85,10 @@ words = words.filter(words.word != "")
 wordCounts = words.groupBy("word").count()
 
 # Convert the word counts to JSON
-wordCounts = wordCounts.toJSON()
+wordCountsJSON = wordCounts.toJSON().collect()
+print(wordCountsJSON)
+print(type(wordCountsJSON))
+print(type(wordCountsJSON[0]))
 
 # Push the word counts to the database
 # TO DO connect uwu
