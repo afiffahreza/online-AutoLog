@@ -143,6 +143,7 @@ for word in wordCounts:
 score = 0
 for i in range(len(term_entropy)):
     score += term_entropy[i].score * local_weight[i].score
+    score = score * score
 score = np.sqrt(score)
 
 # Output the score of the chunk
