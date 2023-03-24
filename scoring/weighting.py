@@ -1,5 +1,5 @@
 from pyspark.sql.functions import explode, split
-# import numpy as np
+import numpy as np
 
 # ==================== Term weighting ====================
 # Given a chunk after parsing, term weighting is done by:
@@ -51,7 +51,7 @@ def weight(wordCounts: list):
     # et = 1 + ( sum(ptj * log2(ptj)) / log2(M))
 
     term_entropy = []
-    np = object()
+    # np = object()
 
     for word in wordCounts:
         # Get the total number of occurrences of term t in all chunks
