@@ -34,7 +34,7 @@ def store(word_count_pairs: list, db, app):
     print("Stored baseline terms to db")
 
 # === (iii-learned) ===
-def weight(wordCounts: list):
+def weight(wordCounts: list, db, app):
     # Access db to get the total number of terms in all chunks
 
     # Compute a numeric score for the chunk based on the occurrences of the terms using log entropy
