@@ -1,5 +1,6 @@
 from pyspark.sql.functions import explode, split
 import numpy as np
+from db import input_data
 
 # ==================== Term weighting ====================
 # Given a chunk after parsing, term weighting is done by:
@@ -28,12 +29,9 @@ def tokenize(lines):
     return wordCounts
 
 # === (iii-baseline) ===
-def store(word_count_pairs: list):
-    # Push the word counts to the database
-    # TO DO connect uwu
-    print(word_count_pairs)
-    print(type(word_count_pairs))
-    print(type(word_count_pairs[0]))
+def store(word_count_pairs: list, db, app):
+    input_data(db, app, word_count_pairs)
+    print("Stored baseline terms to db")
 
 # === (iii-learned) ===
 def weight(wordCounts: list):

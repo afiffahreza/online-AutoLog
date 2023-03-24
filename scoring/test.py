@@ -1,27 +1,34 @@
 from pyspark.sql import SparkSession
 from preprocess import preprocess
 from weighting import tokenize, store
+from db import CouchDB
+import os
 
-spark = SparkSession.builder.appName("AutoLogScoring").getOrCreate()
+def baseline(logfile, app):
 
-# Stream from file source on dataset/logs.txt
-lines = spark.read.text("./dataset/Explore-logs-2023-03-15 07_36_39.txt")
+    spark = SparkSession.builder.appName("AutoLogScoring").getOrCreate()
 
-# ==================== Preprocessing ====================
-# Parse the lines into words, removing the variable tokens of the log lines while preserving the constant parts.
-lines = preprocess(lines)
+    # Stream from file source on dataset/logs.txt
+    lines = spark.read.text(logfile)
 
-# ==================== Term weighting ====================
-# Given a chunk after parsing, term weighting is done by:
-# (i) tokening the log lines of the chunk into terms,
-# (ii) counting the occurrences of the terms within the chunk,
-# (iii) storing the baseline terms to db.
+    # ==================== Preprocessing ====================
+    lines = preprocess(lines)
 
-wordCounts = tokenize(lines)
+    # ==================== Term weighting ====================
+    wordCounts = tokenize(lines)
+    # Convert the word counts to JSON
+    wordCountsJSON = wordCounts.toJSON().collect()
 
-# Convert the word counts to JSON
-wordCountsJSON = wordCounts.toJSON().collect()
-store(wordCountsJSON)
+    couchdb_url = os.environ.get('COUCHDB_URL', 'http://localhost:5984')
+    couchdb_user = os.environ.get('COUCHDB_USER', 'admin')
+    couchdb_password = os.environ.get('COUCHDB_PASSWORD', 'password')
+    db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
 
-# Stop the Spark session
-spark.stop()
+    store(wordCountsJSON, db, app)
+
+    # Stop the Spark session
+    spark.stop()
+
+
+if __name__ == "__main__":
+    baseline("./dataset/Explore-logs-2023-03-15 07_36_39.txt", "catalog-app")
