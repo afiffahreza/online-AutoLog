@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from preprocess import preprocess
-from weighting import tokenize, store
+from weighting import tokenize, store_normal
 from db import CouchDB
 import os
 
@@ -24,7 +24,7 @@ def baseline(logfile, app):
     couchdb_password = os.environ.get('COUCHDB_PASSWORD', 'password')
     db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
 
-    store(wordCountsJSON, db, app)
+    store_normal(wordCountsJSON, db, app)
 
     # Stop the Spark session
     spark.stop()

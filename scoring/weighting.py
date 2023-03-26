@@ -1,6 +1,6 @@
 from pyspark.sql.functions import explode, split
 import numpy as np
-from db import input_data
+from db import input_data, input_train, get_data, get_train
 
 # ==================== Term weighting ====================
 # Given a chunk after parsing, term weighting is done by:
@@ -29,9 +29,13 @@ def tokenize(lines):
     return wordCounts
 
 # === (iii-baseline) ===
-def store(word_count_pairs: list, db, app):
+def store_normal(word_count_pairs: list, db, app):
     input_data(db, app, word_count_pairs)
     print("Stored baseline terms to db")
+
+def store_normal_score(data, db, app):
+    input_train(db, app, data)
+    print("Stored baseline score to db")
 
 # === (iii-learned) ===
 def weight(wordCounts: list, db, app):
@@ -59,7 +63,6 @@ def weight(wordCounts: list, db, app):
         M = 0 # TODO: get from db
         M += 1
         # Compute the log entropy of term t in all chunks
-        M = 0 # TODO: get from db
         sum_Ptj_log2_Ptj = 0
         for i in range(M):
             # Get the number of occurrences of term t in chunk j
@@ -96,3 +99,4 @@ def weight(wordCounts: list, db, app):
 
     # Output the score of the chunk
     print(score)
+    return score
