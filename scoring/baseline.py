@@ -1,7 +1,8 @@
 from preprocess import read_log, preprocess, tokenize
-from storing import store_normal_terms, store_normal_score
-from weighting import weight
+from storing import store_normal_terms, store_normal_score, get_normal_terms
+from weighting import weight_baseline
 from db import CouchDB
+from datetime import datetime
 import os
 
 def baseline_storing(logfile, app):
@@ -26,3 +27,18 @@ def baseline_training(logfile, app):
 
     baseline_storing(logfile, app)
 
+    couchdb_url = os.environ.get('COUCHDB_URL', 'http://localhost:5984')
+    couchdb_user = os.environ.get('COUCHDB_USER', 'admin')
+    couchdb_password = os.environ.get('COUCHDB_PASSWORD', 'password')
+    db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
+
+    baseline = get_normal_terms(db, app)
+
+    scores = weight_baseline(baseline)
+
+    score_data = {
+        "score": scores,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    store_normal_score(db, app, score_data)

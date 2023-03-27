@@ -14,7 +14,11 @@ if __name__ == "__main__":
     logfile = sys.argv[3]
     if mode == "baseline":
         baseline_storing(logfile, app)
-    elif mode == "train":
+    elif mode == "training":
         baseline_training(logfile, app)
     elif mode == "scoring":
         scoring(logfile, app)
+    else:
+        print("ERROR! Invalid mode")
+        print("Available modes: baseline, train, scoring")
+        exit(-1)
