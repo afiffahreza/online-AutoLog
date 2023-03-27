@@ -67,15 +67,3 @@ def get_last_score(db, app):
     doc = db.get("score-"+app, str(last_num))
     # Get the score from the last document
     return doc
-
-# testing
-# if __name__ == "__main__":
-#     import os
-#     from db import CouchDB
-#     couchdb_url = os.environ.get('COUCHDB_URL', 'http://localhost:5984')
-#     couchdb_user = os.environ.get('COUCHDB_USER', 'admin')
-#     couchdb_password = os.environ.get('COUCHDB_PASSWORD', 'password')
-#     db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
-
-#     print(get_normal_terms(db, "catalog-app"))
-#     print(get_number_of_termchunks(db, "catalog-app"))

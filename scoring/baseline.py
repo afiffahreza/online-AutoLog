@@ -22,7 +22,10 @@ def baseline_storing(logfile, app):
     db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
 
     store_normal_terms(db, app, wordCounts)
-    output_file(wordCounts, "output/" + app + "-baseline.txt")
+    
+    debug = os.environ.get('DEBUG', 'False')
+    if debug:
+        output_file(wordCounts, "output/" + app + "-baseline.txt")
 
 def baseline_training(logfile, app):
 
