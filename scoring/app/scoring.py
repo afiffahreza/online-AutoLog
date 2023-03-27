@@ -1,7 +1,7 @@
-from preprocess import read_log, preprocess, tokenize
-from storing import get_normal_terms, store_score
-from weighting import weight
-from db import CouchDB
+from app.preprocess import read_log, preprocess, tokenize
+from app.storing import get_normal_terms, store_score
+from app.weighting import weight
+from app.db import CouchDB
 from datetime import datetime
 import os
 

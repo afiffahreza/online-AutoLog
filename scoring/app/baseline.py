@@ -1,7 +1,7 @@
-from preprocess import read_log, preprocess, tokenize, output_file
-from storing import store_normal_terms, store_normal_score, get_normal_terms
-from weighting import weight_baseline
-from db import CouchDB
+from app.preprocess import read_log, preprocess, tokenize, output_file
+from app.storing import store_normal_terms, store_normal_score, get_normal_terms
+from app.weighting import weight_baseline
+from app.db import CouchDB
 from datetime import datetime
 import os
 
@@ -23,7 +23,7 @@ def baseline_storing(logfile, app):
 
     store_normal_terms(db, app, wordCounts)
     
-    debug = os.environ.get('DEBUG', 'False')
+    debug = os.environ.get('DEBUG', 0)
     if debug:
         output_file(wordCounts, "output/" + app + "-baseline.txt")
 

@@ -1,6 +1,6 @@
 import sys
-from baseline import baseline_storing, baseline_training
-from scoring import scoring
+from app.baseline import baseline_storing, baseline_training
+from app.scoring import scoring
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
