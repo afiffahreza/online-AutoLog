@@ -4,6 +4,8 @@ def read_log(logfile):
     print("Reading log file: " + logfile)
     with open(logfile, 'r') as f:
         lines = f.readlines()
+    # remove first 3 lines
+    lines = lines[3:]
     return lines
 
 def preprocess(lines):
@@ -14,22 +16,21 @@ def preprocess(lines):
     ip_regex = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?'
     id_regex = r'[0-9a-fA-F]{32}'
     date_regex = r'\d{4}/\d{2}/\d{2}|\d{2}/\w{3}/\d{4}:\d{2}:\d{2}:\d{2} \+\d{4}'
-    path_regex = r'/\d{1,4}'
+    path_regex = r'/\d{1,5}'
 
     # Replace variable tokens with a placeholder
-    lines = [re.sub(timestamp_regex, "TIMESTAMP", line) for line in lines]
-    lines = [re.sub(ip_regex, "IP", line) for line in lines]
-    lines = [re.sub(id_regex, "ID", line) for line in lines]
-    lines = [re.sub(date_regex, "DATE", line) for line in lines]
-    lines = [re.sub(path_regex, "/PATH", line) for line in lines]
+    lines = [re.sub(timestamp_regex, " TIMESTAMP ", line) for line in lines]
+    lines = [re.sub(ip_regex, " IP ", line) for line in lines]
+    lines = [re.sub(id_regex, " ID ", line) for line in lines]
+    lines = [re.sub(date_regex, " DATE ", line) for line in lines]
+    lines = [re.sub(path_regex, " /PATH ", line) for line in lines]
 
     # Replace special characters with a space
     special_regex = r'[^a-zA-Z0-9\s]'
     lines = [re.sub(special_regex, " ", line) for line in lines]
 
-    # Replace numbers
-    number_regex = r'\d+'
-    lines = [re.sub(number_regex, "NUMBER", line) for line in lines]
+    # Replace numbers that is not part of a word
+    lines = [re.sub(r'\b\d+\b', " NUMBER ", line) for line in lines]
 
     # Replace multiple spaces with a single space
     lines = [re.sub(r'\s+', ' ', line) for line in lines]

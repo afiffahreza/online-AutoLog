@@ -19,19 +19,19 @@ def store_normal_score(db, app, data: dict):
     if not count:
         count = 0
     # Insert score document
-    # score = score of the current chunk with M as the number of chunks
-    score = data['score']
-    db.insert("train-"+app, str(count+1), {"score": score})
+    db.insert("train-"+app, str(count+1), {"data": data})
     print("Stored baseline score to db")
 
 # ===== term-count pair to generate real time score =====
-def store_score(db, app, word_count_pairs: dict):
+def store_score(db, app, score: dict):
     # Create database if it doesn't exist with name "score-<app>"
     db.create_db("score-"+app)
     # Get how many documents are in the database
     count = db.get_docs_count("score-"+app)
     if not count:
         count = 0
+    # Insert score document
+    db.insert("score-"+app, str(count+1), {"data": score})
     print("Stored terms to db")
 
 # ===== Getters =====

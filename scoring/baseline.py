@@ -1,4 +1,4 @@
-from preprocess import read_log, preprocess, tokenize
+from preprocess import read_log, preprocess, tokenize, output_file
 from storing import store_normal_terms, store_normal_score, get_normal_terms
 from weighting import weight_baseline
 from db import CouchDB
@@ -22,6 +22,7 @@ def baseline_storing(logfile, app):
     db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
 
     store_normal_terms(db, app, wordCounts)
+    output_file(wordCounts, "output/" + app + "-baseline.txt")
 
 def baseline_training(logfile, app):
 
