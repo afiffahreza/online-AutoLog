@@ -2,4 +2,4 @@
 This component is responsible for scoring logs. It is a simple Python script that reads the data from txt file, scores it and writes the results to a Couch database.
 
 ## Usage
-`spark-submit main.py <mode> <logfile> <app>`
+`python3 main.py <mode> <app> <logfile>`
