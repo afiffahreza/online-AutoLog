@@ -1,30 +1,28 @@
-from pyspark.sql import SparkSession
-from preprocess import preprocess
-from weighting import tokenize, store_normal
+from preprocess import read_log, preprocess, tokenize
+from storing import store_normal_terms, store_normal_score
+from weighting import weight
 from db import CouchDB
 import os
 
-def baseline(logfile, app):
+def baseline_storing(logfile, app):
 
-    spark = SparkSession.builder.appName("AutoLogScoring").getOrCreate()
-
-    # Stream from file source on dataset/logs.txt
-    lines = spark.read.text(logfile)
+    # Read file
+    lines = read_log(logfile)
 
     # ==================== Preprocessing ====================
     lines = preprocess(lines)
 
     # ==================== Term weighting ====================
     wordCounts = tokenize(lines)
-    # Convert the word counts to JSON
-    wordCountsJSON = wordCounts.toJSON().collect()
 
     couchdb_url = os.environ.get('COUCHDB_URL', 'http://localhost:5984')
     couchdb_user = os.environ.get('COUCHDB_USER', 'admin')
     couchdb_password = os.environ.get('COUCHDB_PASSWORD', 'password')
     db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
 
-    store_normal(wordCountsJSON, db, app)
+    store_normal_terms(db, app, wordCounts)
 
-    # Stop the Spark session
-    spark.stop()
+def baseline_training(logfile, app):
+
+    baseline_storing(logfile, app)
+

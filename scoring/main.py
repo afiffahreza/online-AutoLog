@@ -1,18 +1,20 @@
 import sys
-from baseline import baseline
-from scoring import score_baseline, score_trained
+from baseline import baseline_storing, baseline_training
+from scoring import scoring
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: spark-submit scoring.py <mode> <logfile> <app>")
-        print("Example: spark-submit scoring.py baseline dataset/logs.txt app1")
+        print("ERROR! Invalid number of arguments")
+        print("Usage: python3 main.py <mode> <app> <logfile>")
+        print("Example: python3 main.py baseline app1 dataset/logs.txt")
+        print("Available modes: baseline, train, scoring")
         exit(-1)
     mode = sys.argv[1]
-    logfile = sys.argv[2]
-    app = sys.argv[3]
+    app = sys.argv[2]
+    logfile = sys.argv[3]
     if mode == "baseline":
-        baseline(logfile, app)
-    elif mode == "score_baseline":
-        score_baseline(logfile, app)
-    elif mode == "score_trained":
-        score_trained(logfile, app)
+        baseline_storing(logfile, app)
+    elif mode == "train":
+        baseline_training(logfile, app)
+    elif mode == "scoring":
+        scoring(logfile, app)

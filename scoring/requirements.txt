@@ -1,5 +1,2 @@
-pyspark
-cython
 numpy
 requests
-chardet

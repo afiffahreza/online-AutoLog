@@ -1,44 +1,7 @@
-from pyspark.sql.functions import explode, split
 import numpy as np
-from db import input_data, input_train, get_data, get_train
-
-# ==================== Term weighting ====================
-# Given a chunk after parsing, term weighting is done by:
-# (i) tokening the log lines of the chunk into terms,
-# (ii) counting the occurrences of the terms within the chunk,
-# (iii-baseline) storing the baseline terms to db.
-# (iii-learned) compute a numeric score for the chunk based on the occurrences of the terms.
-
-# === (i) & (ii) ===
-def tokenize(lines):
-    # Split the lines into words
-    words = lines.select(
-        explode(
-            split(lines.value, " ")
-        ).alias("word")
-    )
-    # Remove empty words
-    words = words.filter(words.word != "")
-
-    # Count the occurrences of the terms within the chunk
-    wordCounts = words.groupBy("word").count()
-
-    # Output the result to a json file, overwriting the existing file
-    wordCounts.coalesce(1).write.mode("overwrite").json("output")
-
-    return wordCounts
-
-# === (iii-baseline) ===
-def store_normal(word_count_pairs: list, db, app):
-    input_data(db, app, word_count_pairs)
-    print("Stored baseline terms to db")
-
-def store_normal_score(data, db, app):
-    input_train(db, app, data)
-    print("Stored baseline score to db")
 
 # === (iii-learned) ===
-def weight(wordCounts: list, db, app):
+def weight(word_count_pairs: dict, db, app):
     # Access db to get the total number of terms in all chunks
 
     # Compute a numeric score for the chunk based on the occurrences of the terms using log entropy
@@ -55,7 +18,11 @@ def weight(wordCounts: list, db, app):
     term_entropy = []
     # np = object()
 
-    for word in wordCounts:
+    word_count_pairs_list = []
+    for word, count in word_count_pairs.items():
+        word_count_pairs_list.append({"word": word, "count": count})
+
+    for word in word_count_pairs_list:
         # Get the total number of occurrences of term t in all chunks
         Nt = 0 # TODO: get from db
         Nt += word.count
@@ -80,7 +47,7 @@ def weight(wordCounts: list, db, app):
     # wt: weight of term t
     # wt = log2(1+xt)
     local_weight = []
-    for word in wordCounts:
+    for word in word_count_pairs_list:
         # Get the number of occurrences of term t
         xt = word.count
         # Compute the weight of term t
