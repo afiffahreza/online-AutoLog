@@ -74,4 +74,7 @@ if [ "$MODE" == "baseline" ] ||  [ "$MODE" == "training" ]; then
     echo $CURRENT_BASELINE_LOGS > ./log-retriever/output/log_state.txt
 fi
 
+# Remove temporary folder
+rm -rf ./log-retriever/output
+
 echo "Finished running scoring script."
