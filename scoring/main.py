@@ -7,7 +7,7 @@ if __name__ == "__main__":
         print("ERROR! Invalid number of arguments")
         print("Usage: python3 main.py <mode> <app> <logfile>")
         print("Example: python3 main.py baseline app1 dataset/logs.txt")
-        print("Available modes: baseline, train, scoring")
+        print("Available modes: baseline, training, scoring")
         exit(-1)
     mode = sys.argv[1]
     app = sys.argv[2]
