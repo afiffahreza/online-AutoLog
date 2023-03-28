@@ -22,3 +22,4 @@ if __name__ == "__main__":
         print("ERROR! Invalid mode")
         print("Available modes: baseline, train, scoring")
         exit(-1)
+        
