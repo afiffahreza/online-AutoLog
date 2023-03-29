@@ -1,5 +1,5 @@
 from app.preprocess import read_log, preprocess, tokenize, output_file
-from app.storing import store_normal_terms, store_normal_score, get_normal_terms
+from app.storing import store_normal_terms, store_normal_score, get_normal_terms, delete_db
 from app.weighting import weight_baseline
 from app.db import CouchDB
 from datetime import datetime
@@ -27,9 +27,7 @@ def baseline_storing(logfile, app):
     if debug:
         output_file(wordCounts, "output/" + app + "-baseline.txt")
 
-def baseline_training(logfile, app):
-
-    baseline_storing(logfile, app)
+def baseline_training(app):
 
     couchdb_url = os.environ.get('COUCHDB_URL', 'http://localhost:5984')
     couchdb_user = os.environ.get('COUCHDB_USER', 'admin')
@@ -46,3 +44,12 @@ def baseline_training(logfile, app):
     }
 
     store_normal_score(db, app, score_data)
+
+def baseline_reset(app):
+
+    couchdb_url = os.environ.get('COUCHDB_URL', 'http://localhost:5984')
+    couchdb_user = os.environ.get('COUCHDB_USER', 'admin')
+    couchdb_password = os.environ.get('COUCHDB_PASSWORD', 'password')
+    db = CouchDB(couchdb_url, couchdb_user, couchdb_password)
+
+    delete_db(db, app)

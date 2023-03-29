@@ -34,6 +34,15 @@ def store_score(db, app, score: dict):
     db.insert("score-"+app, str(count+1), {"data": score})
     print("Stored terms to db")
 
+# ===== delete db =====
+def delete_db(db, app):
+    db.delete_db("normal-"+app)
+    print("Deleted normal db")
+    db.delete_db("train-"+app)
+    print("Deleted train db")
+    db.delete_db("score-"+app)
+    print("Deleted score db")
+
 # ===== Getters =====
     
 def get_all_docs(db, db_name):
