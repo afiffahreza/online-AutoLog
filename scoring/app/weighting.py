@@ -93,6 +93,13 @@ def weight(baseline: list, current: dict):
             else:
                 Nt[term] = count
                 terms.append(term)
+    
+    for term, count in current.items():
+        if term in Nt:
+            Nt[term] += count
+        else:
+            Nt[term] = count
+            terms.append(term)
 
     M = len(baseline)
     term_entropy = {}
@@ -101,15 +108,9 @@ def weight(baseline: list, current: dict):
     for term in terms:
         # Get the total number of occurrences of term t in all chunks
         current_Nt = Nt[term]
-        
-        # Check if the term is in the current chunk
-        if term in current:
-            # Add the number of occurrences of term t in the current chunk to the total number of occurrences of term t in all chunks
-            current_Nt += current[term]
 
         # Compute the log entropy of term t in all chunks
         sum_Ptj_log2_Ptj = 0
-        sum_Ptj_log2_Ptj += (current[term] / current_Nt) * np.log2(current[term] / current_Nt)
         for term_count in baseline:
             # Get the number of occurrences of term t in chunk j
             if term in term_count:
@@ -119,6 +120,12 @@ def weight(baseline: list, current: dict):
             # Compute the fraction of occurrences of term t in all chunks
             Ptj = xtj / current_Nt
             # Compute the sum of the product of Ptj and log2(Ptj)
+            if Ptj != 0:
+                sum_Ptj_log2_Ptj += (Ptj * np.log2(Ptj))
+        # Check if the current chunk contains the term
+        if term in current:
+            xtj = current[term]
+            Ptj = xtj / current_Nt
             if Ptj != 0:
                 sum_Ptj_log2_Ptj += (Ptj * np.log2(Ptj))
 
