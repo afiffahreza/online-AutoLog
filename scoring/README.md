@@ -4,7 +4,22 @@ This component is responsible for scoring logs. It is a simple Python script tha
 ## Usage
 `python3 main.py`
 
-## Log Retriever
+## Environment Variables
+
+| Variable | Description | Example |
+|---|---|---|
+| `APPLICATIONS` | List of applications to be scored in string, separated by space. | `"catalog customer order ingress-nginx"` |
+| `TARGET_NUM_BASELINE` | Number of chunk for each application needed before changin into scoring mode. | `10` |
+| `LOG_PERIOD` | Period of taking in logs and scoring it in second. | `10` |
+| `RESET_BASELINE` | Reset the baseline database when set to 1. | `0` |
+| `ANOMALY_DETECTOR_URL` | URL of the anomaly detection applications which trigger will be sent to. | `http://localhost/anomaly-detection` |
+| `LOKI_URL` | URL of the Loki database. | `"http://localhost/loki"` |
+| `COUCHDB_URL` | URL of the CouchDB database. | `"http://localhost:5984"` |
+| `COUCHDB_USER` | Username of the CouchDB database. | `"admin"` |
+| `COUCHDB_PASSWORD` | Password of the CouchDB database. | `"password"` |
+| `DEBUG` | Set to 1 to enable debug mode. | `0` |
+
+## Log Retriever - Shell Mode Documentation (Deprecated)
 
 We will be using LogCLI to retrieve logs from Loki. LogCLI is a command line tool that allows you to query logs from Loki. It is a simple tool that can be used to query logs from Loki. It is a simple tool that can be used to query logs from Loki.
 
