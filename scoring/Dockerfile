@@ -1,8 +1,8 @@
 FROM python:3.9-slim-buster
-RUN apt update && apt install tzdata -y
+RUN apt update && apt install tzdata -y && apt install curl -y && apt install unzip -y
 ENV TZ="Asia/Jakarta"
 
-RUN curl -O -L "https://github.com/grafana/logcli/releases/download/v2.7.4/logcli-linux-amd64.zip"
+RUN curl -O -L "https://github.com/grafana/loki/releases/download/v2.7.5/logcli-linux-amd64.zip"
 RUN unzip "logcli-linux-amd64.zip"
 RUN chmod a+x "logcli-linux-amd64"
 RUN mv "logcli-linux-amd64" "/usr/local/bin/logcli"
