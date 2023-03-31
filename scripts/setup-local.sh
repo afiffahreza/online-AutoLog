@@ -31,4 +31,4 @@ helm upgrade --values k8s/online-autolog/couchdb/values.yaml --install couchdb -
 echo "Grafana password: $(kubectl get secret loki-grafana -n loki-stack -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)"
 
 # Print couchdb password
-echo "AutoLog Couchdb password: $(kubectl get secret couchdb -n online-autolog -o jsonpath="{.data.adminPassword}" | base64 --decode ; echo)"
+echo "AutoLog Couchdb password: $(kubectl get secret couchdb-couchdb -n online-autolog -o jsonpath="{.data.adminPassword}" | base64 --decode ; echo)"
