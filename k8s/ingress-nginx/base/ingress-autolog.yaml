@@ -10,9 +10,9 @@ spec:
   - http:
       paths:
       - pathType: Prefix
-        path: /autolog/db(/|$)(.*)
+        path: /autolog(/|$)(.*)
         backend:
           service:
-            name: couchdb
+            name: autolog-anomaly-detection
             port:
-              number: 5984
+              number: 8080

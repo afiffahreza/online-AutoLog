@@ -1,5 +1,5 @@
 # -- the initial number of nodes in the CouchDB cluster.
-clusterSize: 1
+clusterSize: 3
 
 # -- If allowAdminParty is enabled the cluster will start up without any database
 # administrator account; i.e., all users will be granted administrative
@@ -38,7 +38,7 @@ autoSetup:
 createAdminSecret: true
 
 adminUsername: admin
-# adminPassword: this_is_not_secure
+# adminPassword: change_me
 # adminHash: -pbkdf2-this_is_not_necessarily_secure_either
 # cookieAuthSecret: neither_is_this
 
@@ -146,14 +146,15 @@ service:
 ## from outside the Kubernetes cluster.
 ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
-  enabled: false
+  enabled: true
   hosts:
-    - chart-example.local
-  path: /
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  tls:
+    - localhost
+  path: /autolog/db(/|$)(.*)
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  tls: {}
     # Secrets must be manually created in the namespace.
     # - secretName: chart-example-tls
     #   hosts:
