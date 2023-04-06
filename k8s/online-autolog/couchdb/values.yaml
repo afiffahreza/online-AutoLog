@@ -146,7 +146,7 @@ service:
 ## from outside the Kubernetes cluster.
 ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
-  enabled: true
+  enabled: false
   hosts:
     - localhost
   path: /autolog/db(/|$)(.*)
