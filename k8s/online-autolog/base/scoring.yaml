@@ -19,7 +19,7 @@ spec:
         run: scoring
     spec:
       containers:
-      - image: afiffahreza/online-autolog-scoring:1
+      - image: afiffahreza/online-autolog-scoring:2
         name: scoring
         resources: {}
         env:
