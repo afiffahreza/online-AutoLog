@@ -1,9 +1,12 @@
 pandas
-numpy
 scikit-learn
 matplotlib
 flask
 requests
 tensorflow-macos
 tensorflow-metal
+numpy==1.23
 keras
+seaborn
+pydot
+graphiz
