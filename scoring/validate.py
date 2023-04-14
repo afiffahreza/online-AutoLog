@@ -7,7 +7,7 @@ from app.anomaly_detection import start_anomaly_detection, trigger_anomaly_detec
 
 if __name__ == "__main__":
 
-    print("Starting scoring service...\n\n")
+    print("Starting scoring service...\n")
 
     applications = ['ID','NULL','R00','R01','R02','R03','R04','R05','R06','R07','R10','R11','R12','R13','R14','R15','R16','R17','R20',
         'R21','R22','R23','R24','R25','R26','R27','R30','R31','R32','R33','R34','R35','R36','R37','R40','R41','R42','R43',
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     log_period = 300
 
     # Read log file
-    log_file = open("dataset/BGL.log", "r") # 700 MB LMAOOOO RIP RAM
+    log_file = open("dataset/BGL_2k.log", "r") # 700 MB LMAOOOO RIP RAM
     
     # Log Structure
     # <log type> <id> <date> <logging entity> <datetime> <logging entity> <log>
@@ -27,41 +27,27 @@ if __name__ == "__main__":
     # Split log file into lines
     log_lines = log_file.read().splitlines()
 
-    # Group log lines by datetime, using P=300s
-    log_groups = []
-    log_group = []
+    # Group log lines by logging entity and datetime using P=300s
+    log_per_time_per_entity = {}
     log_group_datetime = None
+    time_iteration = 0
     for log_line in log_lines:
         log = log_line.split(" ")
         log_datetime = datetime.strptime(log[4], "%Y-%m-%d-%H.%M.%S.%f")
-        if log_group_datetime == None:
+        current_entity = log[3][0:3]
+        log_line_without_first_six = " ".join(log[6:])
+        if log_group_datetime is None:
             log_group_datetime = log_datetime
-        if (log_datetime - log_group_datetime).total_seconds() < log_period:
-            log_group.append(log)
-        else:
-            log_groups.append(log_group)
-            log_group = [log]
+        if log_datetime - log_group_datetime > timedelta(seconds=log_period):
             log_group_datetime = log_datetime
-    
-    # For every log lines group, break it down into another different group, grouped by logging entity
-    # This is done to make it easier to calculate the baseline
-    log_groups_by_entity = []
-    for log_group in log_groups:
-        log_group_by_entity = []
-        log_group_by_entity_datetime = None
-        log_group_by_entity_entity = None
-        for log in log_group:
-            log_datetime = datetime.strptime(log[4], "%Y-%m-%d-%H.%M.%S.%f")
-            log_entity = log[5]
-            if log_group_by_entity_datetime == None:
-                log_group_by_entity_datetime = log_datetime
-            if log_group_by_entity_entity == None:
-                log_group_by_entity_entity = log_entity
-            if (log_datetime - log_group_by_entity_datetime).total_seconds() < log_period and log_entity == log_group_by_entity_entity:
-                log_group_by_entity.append(log)
-            else:
-                log_groups_by_entity.append(log_group_by_entity)
-                log_group_by_entity = [log]
-                log_group_by_entity_datetime = log_datetime
-                log_group_by_entity_entity = log_entity
+            time_iteration += 1
+        if time_iteration not in log_per_time_per_entity:
+            log_per_time_per_entity[time_iteration] = {}
+        if current_entity not in log_per_time_per_entity[time_iteration]:
+            log_per_time_per_entity[time_iteration][current_entity] = []
+        log_per_time_per_entity[time_iteration][current_entity].append(log_line_without_first_six)
+
+    for i in range(0,20):
+        print(log_per_time_per_entity[i])
+
     
