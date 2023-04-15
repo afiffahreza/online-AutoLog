@@ -17,6 +17,7 @@ def preprocess(lines):
     id_regex = r'[0-9a-fA-F]{32}'
     date_regex = r'\d{4}/\d{2}/\d{2}|\d{2}/\w{3}/\d{4}:\d{2}:\d{2}:\d{2} \+\d{4}'
     path_regex = r'/\d{1,5}'
+    hexa_regex = r'0x[0-9a-fA-F]+'
 
     # Replace variable tokens with a placeholder
     lines = [re.sub(timestamp_regex, " TIMESTAMP ", line) for line in lines]
@@ -24,6 +25,7 @@ def preprocess(lines):
     lines = [re.sub(id_regex, " ID ", line) for line in lines]
     lines = [re.sub(date_regex, " DATE ", line) for line in lines]
     lines = [re.sub(path_regex, " /PATH ", line) for line in lines]
+    lines = [re.sub(hexa_regex, " HEXA ", line) for line in lines]
 
     # Replace special characters with a space
     special_regex = r'[^a-zA-Z0-9\s]'

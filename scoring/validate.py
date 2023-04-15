@@ -1,9 +1,7 @@
 import os, time
 from datetime import datetime, timedelta, timezone
-from app.baseline import baseline_storing, baseline_training, baseline_reset
-from app.scoring import scoring
-from app.logger import log_generator, log_remover
-from app.anomaly_detection import start_anomaly_detection, trigger_anomaly_detection
+from app.weighting import weight_baseline
+from app.preprocess import preprocess, tokenize
 
 if __name__ == "__main__":
 
@@ -47,7 +45,34 @@ if __name__ == "__main__":
             log_per_time_per_entity[time_iteration][current_entity] = []
         log_per_time_per_entity[time_iteration][current_entity].append(log_line_without_first_six)
 
-    for i in range(0,20):
-        print(log_per_time_per_entity[i])
+    # Preprocess log lines
+    preprocessed_log_per_time_per_entity = {}
+    for time_iteration in log_per_time_per_entity:
+        for entity in log_per_time_per_entity[time_iteration]:
+            preprocessed_log_per_time_per_entity[time_iteration] = {}
+            preprocessed_log_per_time_per_entity[time_iteration][entity] = tokenize(preprocess(log_per_time_per_entity[time_iteration][entity]))
 
+    # Print preprocessed log lines
+    # for time_iteration in preprocessed_log_per_time_per_entity:
+    #     for entity in preprocessed_log_per_time_per_entity[time_iteration]:
+    #         print("Time iteration: " + str(time_iteration))
+    #         print("Entity: " + entity)
+    #         print("Log lines: " + str(preprocessed_log_per_time_per_entity[time_iteration][entity]))
+    #         print("")
     
+    # Score log lines per entity
+    scores = [[0 for x in range(len(applications))] for y in range(len(preprocessed_log_per_time_per_entity))]
+    for entity in applications:
+        current_array_log = []
+        for time_iteration in preprocessed_log_per_time_per_entity:
+            # print(entity)
+            # print(preprocessed_log_per_time_per_entity[time_iteration])
+            if entity in preprocessed_log_per_time_per_entity[time_iteration]:
+                current_array_log.append(preprocessed_log_per_time_per_entity[time_iteration][entity])
+            else:
+                current_array_log.append([])
+    # Print scores
+    for entity in applications:
+        print("Entity: " + entity)
+        print("Scores: " + str(scores[applications.index(entity)]))
+        print("")
