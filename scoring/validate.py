@@ -1,5 +1,5 @@
-import os, time
-from datetime import datetime, timedelta, timezone
+import pandas as pd
+from datetime import datetime, timedelta
 from app.weighting import weight_baseline
 from app.preprocess import preprocess, tokenize
 
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     log_period = 300
 
     # Read log file
-    log_file = open("dataset/BGL_2k.log", "r") # 700 MB LMAOOOO RIP RAM
+    log_file = open("dataset/BGL.log", "r") # 700 MB LMAOOOO RIP RAM
     
     # Log Structure
     # <log type> <id> <date> <logging entity> <datetime> <logging entity> <log>
@@ -24,6 +24,9 @@ if __name__ == "__main__":
 
     # Split log file into lines
     log_lines = log_file.read().splitlines()
+
+    # Close log file
+    log_file.close()
 
     # Group log lines by logging entity and datetime using P=300s
     log_per_time_per_entity = {}
@@ -71,11 +74,16 @@ if __name__ == "__main__":
                 current_log.append(preprocessed_log_per_time_per_entity[time_iteration][entity])
             else:
                 current_log.append({})
-        print(current_log)
         scores[entity] = weight_baseline(current_log)
         
     # Print scores
-    for entity in applications:
-        print("Entity: " + entity)
-        print("Scores: " + str(scores[entity]))
-        print("")
+    # for entity in applications:
+    #     print("Entity: " + entity)
+    #     print("Scores: " + str(scores[entity]))
+    #     print("")
+
+    # Create pandas dataframe
+    df = pd.DataFrame(scores)
+    df.to_csv("./dataset/scores.csv", index=False)
+
+    print("Finished scoring service.")
