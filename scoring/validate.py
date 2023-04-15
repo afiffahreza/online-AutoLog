@@ -61,18 +61,21 @@ if __name__ == "__main__":
     #         print("")
     
     # Score log lines per entity
-    scores = [[0 for x in range(len(applications))] for y in range(len(preprocessed_log_per_time_per_entity))]
+    scores = {}
     for entity in applications:
-        current_array_log = []
+        current_log = []
         for time_iteration in preprocessed_log_per_time_per_entity:
             # print(entity)
             # print(preprocessed_log_per_time_per_entity[time_iteration])
             if entity in preprocessed_log_per_time_per_entity[time_iteration]:
-                current_array_log.append(preprocessed_log_per_time_per_entity[time_iteration][entity])
+                current_log.append(preprocessed_log_per_time_per_entity[time_iteration][entity])
             else:
-                current_array_log.append([])
+                current_log.append({})
+        print(current_log)
+        scores[entity] = weight_baseline(current_log)
+        
     # Print scores
     for entity in applications:
         print("Entity: " + entity)
-        print("Scores: " + str(scores[applications.index(entity)]))
+        print("Scores: " + str(scores[entity]))
         print("")
