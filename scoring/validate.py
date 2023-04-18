@@ -14,7 +14,7 @@ if __name__ == "__main__":
     log_period = 300
 
     # Read log file
-    log_file = open("dataset/BGL_2k.log", "r") # 700 MB LMAOOOO RIP RAM
+    log_file = open("dataset/BGL.log", "r") # 700 MB LMAOOOO RIP RAM
     
     # Log Structure
     # <log type> <id> <date> <logging entity> <datetime> <logging entity> <log>
@@ -69,10 +69,13 @@ if __name__ == "__main__":
     preprocessed_log_per_time_per_entity = {}
     for time_iteration in log_per_time_per_entity:
         for entity in log_per_time_per_entity[time_iteration]:
+            if entity == 'label':
+                continue
             preprocessed_log_per_time_per_entity[time_iteration] = {}
             preprocessed_log_per_time_per_entity[time_iteration][entity] = tokenize(preprocess(log_per_time_per_entity[time_iteration][entity]))
             if time_iteration in error_lines:
                 print("Time iteration: " + str(time_iteration))
+                print("Entity: " + entity)
                 print("Log lines: " + str(preprocessed_log_per_time_per_entity[time_iteration][entity]))
 
     # Print preprocessed log lines
@@ -111,10 +114,10 @@ if __name__ == "__main__":
 
     # Create pandas dataframe
     df = pd.DataFrame(scores)
-    df.to_csv("./dataset/scores_2k.csv", index=False)
+    df.to_csv("./dataset/scores_labeled.csv", index=False)
 
     # Create error log
-    error_log = open("dataset/error_log_2k.log", "w")
+    error_log = open("dataset/error_log.log", "w")
     for time_iteration in error_lines:
         error_log.write("Time iteration: " + str(time_iteration))
         error_log.write("\n")
