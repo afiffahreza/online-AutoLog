@@ -71,12 +71,13 @@ if __name__ == "__main__":
         for entity in log_per_time_per_entity[time_iteration]:
             if entity == 'label':
                 continue
-            preprocessed_log_per_time_per_entity[time_iteration] = {}
+            if time_iteration not in preprocessed_log_per_time_per_entity:
+                preprocessed_log_per_time_per_entity[time_iteration] = {}
             preprocessed_log_per_time_per_entity[time_iteration][entity] = tokenize(preprocess(log_per_time_per_entity[time_iteration][entity]))
-            if time_iteration in error_lines:
-                print("Time iteration: " + str(time_iteration))
-                print("Entity: " + entity)
-                print("Log lines: " + str(preprocessed_log_per_time_per_entity[time_iteration][entity]))
+            # if time_iteration in error_lines:
+            #     print("Time iteration: " + str(time_iteration))
+            #     print("Entity: " + entity)
+            #     print("Log lines: " + str(preprocessed_log_per_time_per_entity[time_iteration][entity]))
 
     # Print preprocessed log lines
     # for time_iteration in preprocessed_log_per_time_per_entity:
