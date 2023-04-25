@@ -134,10 +134,10 @@ class MultilayerAutoEncoder():
         print(df_error.to_string())
         print(df_error.describe(include='all'))
 
-        plot_reconstruction_error(df_error, threshold)
+        # plot_reconstruction_error(df_error, threshold)
         compute(df_error, threshold)
 
-        plot_thresold(df_error.true_class, df_error.reconstruction_error)
+        # plot_thresold(df_error.true_class, df_error.reconstruction_error)
 
 
 

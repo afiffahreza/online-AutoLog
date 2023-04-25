@@ -51,7 +51,12 @@ def test_retrieve_data_train():
     autoencoder.evaluate(x_test, y_test, threshold)
 
 def test_local():
-    df = retrieve_data_file('./dataset/scores_labeled.csv')
+    # df = retrieve_data_file('./dataset/scores_labeled.csv')
+    names = ['ID','NULL','R00','R01','R02','R03','R04','R05','R06','R07','R10','R11','R12','R13','R14','R15','R16','R17','R20',
+            'R21','R22','R23','R24','R25','R26','R27','R30','R31','R32','R33','R34','R35','R36','R37','R40','R41','R42','R43',
+            'R44','R45','R46','R47','R50','R51','R52','R53','R54','R55','R56','R57','R60','R61','R62','R63','R64','R65',
+            'R66','R67','R70','R71','R72','R73','R74','R75','R76','R77','UNKNOWNLOCATION','UNSPECIFIED','Label']
+    df = pd.read_csv('./dataset/BGLvector.csv', names=names, header=None, sep=',', index_col=False, dtype='unicode')
     labels = ['R00','R01','R02','R03','R04','R05','R06','R07','R10','R11','R12','R13','R14','R15','R16','R17','R20',
         'R21','R22','R23','R24','R25','R26','R27','R30','R31','R32','R33','R34','R35','R36','R37','R40','R41','R42','R43',
         'R44','R45','R46','R47','R50','R51','R52','R53','R54','R55','R56','R57','R60','R61','R62','R63','R64','R65',
@@ -67,7 +72,7 @@ def test_local():
     bad = df[df['Label'] == 1]
 
     # Split good data into train and test
-    x_train, x_test = train_test_split(good, test_size=0.2, random_state=42)
+    x_train, x_test = train_test_split(good, test_size=0.2, random_state=999)
 
     # Concat bad data to test
     x_test = pd.concat([x_test, bad])
@@ -75,8 +80,8 @@ def test_local():
     # Split data into features and labels
     y_train = x_train['Label']
     y_test = x_test['Label']
-    x_train = x_train.drop(['Label', 'Id'], axis=1)
-    x_test = x_test.drop(['Label', 'Id'], axis=1)
+    x_train = x_train.drop(['Label', 'ID'], axis=1)
+    x_test = x_test.drop(['Label', 'ID'], axis=1)
 
     # Print data
     # print("Train data:")
