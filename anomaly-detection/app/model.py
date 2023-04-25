@@ -65,7 +65,7 @@ class MultilayerAutoEncoder():
 
         #epochs = 50
         #v2
-        epochs = 5
+        epochs = 50
         batch_size = 2048
         #v1
         #epochs = 100

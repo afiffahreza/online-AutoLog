@@ -14,6 +14,7 @@ def retrieve_data_train(db, applications):
     return pd.DataFrame.from_dict(data)
 
 # For testing only
+
 def retrieve_data_scoring(db, applications):
     data = {}
     for app in applications:
@@ -26,6 +27,10 @@ def retrieve_data_scoring(db, applications):
         data[app] = docs
     data['label'] = [0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     return pd.DataFrame.from_dict(data)
+
+def retrieve_data_file(filename):
+    data = pd.read_csv(filename)
+    return data
 
 # if __name__ == '__main__':
 #     from sklearn.model_selection import train_test_split
