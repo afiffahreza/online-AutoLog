@@ -12,8 +12,10 @@ if __name__ == "__main__":
     applications = os.environ.get('APPLICATIONS', 'catalog customer order ingress-nginx').split(' ')
     target_num_baseline = int(os.environ.get('TARGET_NUM_BASELINE', 10))
     log_period = int(os.environ.get('LOG_PERIOD', 10))
-    reset_baseline = os.environ.get('RESET_BASELINE', 1)
+    reset_baseline = os.environ.get('RESET_BASELINE', 0)
     anomaly_detector_url = os.environ.get('ANOMALY_DETECTOR_URL', 'standalone')
+    baselien_start_timerange = os.environ.get('BASELINE_START_TIMERANGE', '')
+    baseline_end_timerange = os.environ.get('BASELINE_END_TIMERANGE', '')
 
     print("Applications: ", applications)
     print("Target number of baseline: ", target_num_baseline)
