@@ -203,7 +203,7 @@ def compute(df_error, threshold):
     plt.title('Confusion matrix')
     plt.ylabel('True class')
     plt.xlabel('Predicted class')
-    plt.savefig(base_dir + '/confusion_matrix.png', bbox_inches='tight', dpi=500)
+    # plt.savefig(base_dir + '/confusion_matrix.png', bbox_inches='tight', dpi=500)
     #plt.figure(2)
     plt.show()
     #fig2.show()
