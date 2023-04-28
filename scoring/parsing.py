@@ -1,6 +1,8 @@
 import json
-import pandas as pd
+import re
 from os.path import dirname
+
+from app.preprocess import preprocess, tokenize
 
 from drain3 import TemplateMiner
 from drain3.template_miner_config import TemplateMinerConfig
@@ -38,8 +40,15 @@ for log_line in log_lines:
     template = result.get_template()
     parsed_log_lines.append(template)
 
+# print(tokenize(preprocess(parsed_log_lines)))
+
 for log_line in parsed_log_lines:
-    print(log_line)
+    s = log_line
+    s = re.sub('<:.+?:>', '', s)
+    s = re.sub('[^a-zA-Z0-9\s]', '', s)
+    s = re.sub('\s+', ' ', s)
+    s = s.strip()
+    print(s)
 
 # while True:
 #     log_line = input("> ")
