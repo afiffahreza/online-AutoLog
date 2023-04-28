@@ -173,6 +173,7 @@ cython_debug/
 # Datasets
 dataset/
 output/
+*.bin
 
 # VSCode
 .vscode/
