@@ -2,6 +2,19 @@ import pandas as pd
 from datetime import datetime, timedelta
 from app.weighting import weight_baseline
 from app.preprocess import preprocess, tokenize
+from os.path import dirname
+
+from drain3 import TemplateMiner
+from drain3.template_miner_config import TemplateMinerConfig
+from drain3.file_persistence import FilePersistence
+
+persistence = FilePersistence("drain3_state.bin")
+
+config = TemplateMinerConfig()
+config.load(dirname(__file__) + "/drain3.ini")
+config.profiling_enabled = False
+
+template_miner = TemplateMiner(persistence, config)
 
 if __name__ == "__main__":
 
@@ -47,6 +60,7 @@ if __name__ == "__main__":
         elif current_entity == "NUL":
             current_entity = "UNSPECIFIED"
         log_line_without_first_six = " ".join(log[6:])
+        template_miner.add_log_message(log_line_without_first_six)
         if log_group_datetime is None:
             log_group_datetime = log_datetime
         if log_datetime - log_group_datetime > timedelta(seconds=log_period):
@@ -73,7 +87,19 @@ if __name__ == "__main__":
                 continue
             if time_iteration not in preprocessed_log_per_time_per_entity:
                 preprocessed_log_per_time_per_entity[time_iteration] = {}
-            preprocessed_log_per_time_per_entity[time_iteration][entity] = tokenize(preprocess(log_per_time_per_entity[time_iteration][entity]))
+            templates = []
+            for template in log_per_time_per_entity[time_iteration][entity]:
+                # print(template)
+                result = template_miner.match(template)
+                if result is None:
+                    print("none")
+                    templates.append('')
+                else:
+                    # print("hit")
+                    templates.append(result.get_template())
+            # print(templates)
+            preprocessed_log_per_time_per_entity[time_iteration][entity] = tokenize(preprocess(templates))
+            # print(preprocessed_log_per_time_per_entity[time_iteration][entity])
             # if time_iteration in error_lines:
             #     print("Time iteration: " + str(time_iteration))
             #     print("Entity: " + entity)
@@ -115,7 +141,7 @@ if __name__ == "__main__":
 
     # Create pandas dataframe
     df = pd.DataFrame(scores)
-    df.to_csv("./dataset/scores_labeled.csv", index=False)
+    df.to_csv("./dataset/scores_labeled_new.csv", index=False)
 
     # Create error log
     error_log = open("dataset/error_log.log", "w")

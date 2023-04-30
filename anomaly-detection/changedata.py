@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('./dataset/scores_labeled.csv')
+df = pd.read_csv('./dataset/scores_labeled_new.csv')
 df.head()
 
 # add dummy column
@@ -14,4 +14,4 @@ df = df[cols]
 df.head()
 
 # export to csv file, without the header
-df.to_csv('./dataset/BGLVector_new.csv', header=False, index=False)
+df.to_csv('./dataset/BGLVector_new2.csv', header=False, index=False)

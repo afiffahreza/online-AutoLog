@@ -9,6 +9,13 @@ def read_log(logfile):
     return lines
 
 def preprocess(lines):
+    lines = [re.sub('<:.+?:>', '', line) for line in lines]
+    lines = [re.sub('[^a-zA-Z0-9\s]', '', line) for line in lines]
+    lines = [re.sub('\s+', ' ', line) for line in lines]
+    lines = [line.strip() for line in lines]
+    return lines
+
+def preprocess_old(lines):
     print("Preprocessing log file...")
 
     # Define regular expressions for variable tokens such as timestamps, IP addresses, random log IDs, and dates
