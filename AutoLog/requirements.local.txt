@@ -1,0 +1,11 @@
+requests
+drain3
+pandas
+scikit-learn
+matplotlib
+flask
+tensorflow-macos
+tensorflow-metal
+numpy==1.23
+keras
+seaborn

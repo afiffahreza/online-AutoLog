@@ -1,0 +1,10 @@
+requests
+drain3
+pandas
+numpy==1.23
+scikit-learn
+matplotlib
+flask
+tensorflow
+keras
+seaborn
