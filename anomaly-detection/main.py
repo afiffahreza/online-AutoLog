@@ -72,7 +72,7 @@ def test_local():
     bad = df[df['Label'] == 1]
 
     # Split good data into train and test
-    x_train, x_test = train_test_split(good, test_size=0.021, random_state=999)
+    x_train, x_test = train_test_split(good, test_size=0.0206, random_state=999)
 
     # Concat bad data to test
     x_test = pd.concat([x_test, bad])
