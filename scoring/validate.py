@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
     # Create pandas dataframe
     df = pd.DataFrame(scores)
-    df.to_csv("./dataset/scores_labeled_new.csv", index=False)
+    df.to_csv("./dataset/scores_final.csv", index=False)
 
     # Create error log
     # error_log = open("dataset/error_log.log", "w")
