@@ -28,7 +28,7 @@ if __name__ == "__main__":
     log_period = 300
 
     # Read log file
-    log_file = open("dataset/BGL.log", "r") # 700 MB LMAOOOO RIP RAM
+    log_file = open("dataset/BGL.log", "r")
     
     # Log Structure
     # <log type> <id> <date> <logging entity> <datetime> <logging entity> <log>
