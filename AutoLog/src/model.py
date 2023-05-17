@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from keras.models import Model
 from keras.layers import Input, Dense, Dropout
 from keras import regularizers, initializers
@@ -75,9 +74,6 @@ class MultilayerAutoEncoder():
         threshold = np.percentile(val_mse , 90)
         print('Current threshold: ')
         print(threshold)
-
-        plt.plot(val_mse)
-        plt.show()
 
         df_history = pd.DataFrame(history.history)
         return df_history, threshold
