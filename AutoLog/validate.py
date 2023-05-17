@@ -237,6 +237,7 @@ if __name__ == "__main__":
     autoencoder = MultilayerAutoEncoder(input_dim = input_dim)
     autoencoder.summary()
     history, threshold = autoencoder.train(x_train_scaled, x_train_scaled)
+    autoencoder.evaluate(x_test_scaled, y_test, threshold)
 
     # save model
     save_model(autoencoder, "./output/test230514/model.pkl")
