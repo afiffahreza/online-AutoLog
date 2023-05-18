@@ -1,13 +1,12 @@
 import re, subprocess, os
 
-def log_generator(app, time_start, time_end):
+def log_generator(app, time_start, time_end, loki_url):
     file_dir = os.path.dirname(os.path.realpath(__file__))
     current_dir = os.path.dirname(file_dir)
     filename = f"{current_dir}/output/{app}-log-{time_start}.txt"
-    loki_url = os.environ.get('LOKI_URL', 'http://localhost/loki')
     query = "'{app=\""+app+"\"}'"
     # logcli query $query --addr=$LOKI_URL --from=$time_end --to=$NOW --limit=5000 > ./output/$app-log-$NOW.txt
-    command = "logcli query "+query+" --addr="+loki_url+" --from="+time_end+" --to="+time_start+" --limit=5000  > "+filename
+    command = "logcli query "+query+" --addr="+loki_url+" --from="+time_start+" --to="+time_end+" --limit=5000  > "+filename
     print("Command to be executed: ", command)
     subprocess.run(command, shell=True)
     return filename

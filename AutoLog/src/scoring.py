@@ -97,35 +97,3 @@ class Scoring:
             local_weight = np.log2(1 + count)
             current_score += np.square(local_weight * self.calculate_new_entropy(term, count))
         return np.sqrt(current_score)
-
-# Test
-if __name__ == '__main__':
-    scoring = Scoring()
-    scoring.add_lines(['this is just an example is just an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is an hehe haha hehe i am just an example', 'this is just an example is just an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is just an example is just i am just an example'])
-    scoring.add_lines(['this is an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is just an example is just an hehe haha', 'hehe i am just an example'])
-    scoring.add_lines(['this is an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is just an example is just an hehe haha hehe i am just an example', 'this is an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this this this this this this this this this'])
-    scoring.add_lines(['is just an example is just an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is just an example is just an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is just an example is just an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is an hehe haha hehe i am just an example'])
-    scoring.add_lines(['this is just an example is just an hehe haha hehe i am just an example'])
-    scoring.add_lines(['what'])
-
-    # save
-    scoring.save('scoring.pkl')
-
-    print(scoring.calculate_baseline_score())
-    print(scoring.calculate_score(['what']))
-
-    # load
-    scoring_load = Scoring()
-    scoring_load.load('scoring.pkl')
-
-    print(scoring_load.calculate_baseline_score())
-    print(scoring_load.calculate_score(['what']))
