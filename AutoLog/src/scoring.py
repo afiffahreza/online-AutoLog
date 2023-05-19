@@ -1,4 +1,4 @@
-import pickle, re
+import pickle, re, json
 import numpy as np
 from drain3 import TemplateMiner
 from drain3.template_miner_config import TemplateMinerConfig
@@ -50,12 +50,27 @@ class Scoring:
                 chunk[term] = 0
             chunk[term] += 1
         return chunk
+    
+    def is_json(self, line):
+        try:
+            json.loads(line)
+        except ValueError as e:
+            return False
+        return True
+    
+    def stringify_json(self, line):
+        data = json.loads(line)
+        return ' '.join([f'{key} {value}' for key, value in data.items()])
 
     def add_lines(self, lines):
         for line in lines:
+            if self.is_json(line):
+                line = self.stringify_json(line)
             self.templates.add_log_message(line)
         template_lines = []
         for line in lines:
+            if self.is_json(line):
+                line = self.stringify_json(line)
             result = self.templates.match(line)
             template_lines.append(result.get_template())
         lines = self.preprocess(template_lines)
