@@ -9,3 +9,4 @@ tensorflow-metal
 numpy==1.23
 keras
 seaborn
+python-loki-client
