@@ -4,17 +4,23 @@ from src.scoring import Scoring
 from src.model import MultilayerAutoEncoder
 from grafana_loki_client import Client
 
+def manual_scoring(filename):
+    scoring = Scoring()
+    scoring.load(filename)
+    return scoring.calculate_baseline_score()
+
 if __name__ == "__main__":
 
     print("Starting training...")
     print("Time start: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("\n")
 
-    applications = os.environ.get('APPLICATIONS', 'frontend cartservice').split(' ')
+    # applications = os.environ.get('APPLICATIONS', 'frontend cartservice').split(' ')
+    applications = os.environ.get('APPLICATIONS', 'productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice').split(' ')
     # applications = os.environ.get('APPLICATIONS', 'frontend cartservice productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice').split(' ')
     log_period = int(os.environ.get('LOG_PERIOD', 10))
     baseline_time_start = os.environ.get('BASELINE_TIME_START', '2023-05-18T10:00:00Z')
-    baseline_time_end = os.environ.get('BASELINE_TIME_END', '2023-05-18T11:00:00Z')
+    baseline_time_end = os.environ.get('BASELINE_TIME_END', '2023-05-18T22:00:00Z')
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
 
     print("Applications: ", applications)
@@ -29,6 +35,10 @@ if __name__ == "__main__":
     
     # Collecting Baseline Logs
     scores = {}
+
+    scores['frontend'] = manual_scoring('./output/test230519/frontend-baseline-score.pkl')
+    scores['cartservice'] = manual_scoring('./output/test230519/cartservice-baseline-score.pkl')
+
     for app in applications:
         print("Collecting baseline logs for", app)
         print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
