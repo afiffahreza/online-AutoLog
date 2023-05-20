@@ -95,7 +95,6 @@ if __name__ == "__main__":
 
     print("Model Summary: ")
     autoencoder.summary()
-    print("Threshold: ", threshold)
 
     print("\n")
     print("Finished training...")
