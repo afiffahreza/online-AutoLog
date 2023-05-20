@@ -129,8 +129,10 @@ class Scoring:
     def calculate_score(self, lines):
         template_lines = []
         for line in lines:
+            if self.is_json(line):
+                line = self.stringify_json(line)
             result = self.templates.match(line)
-            if not result.get_template():
+            if not result:
                 self.templates.add_log_message(line)
             result = self.templates.match(line)
             template_lines.append(result.get_template())
