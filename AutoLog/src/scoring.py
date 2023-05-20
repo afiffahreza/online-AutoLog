@@ -2,7 +2,6 @@ import pickle, re, json
 import numpy as np
 from drain3 import TemplateMiner
 from drain3.template_miner_config import TemplateMinerConfig
-from drain3.file_persistence import FilePersistence
 
 class Scoring:   
     
@@ -12,7 +11,6 @@ class Scoring:
         self.terms = {}
         self.entropies = {}
 
-        persistence = FilePersistence("drain3_state.bin")
         config = TemplateMinerConfig()
         config.load("drain3.ini")
         config.profiling_enabled = False
