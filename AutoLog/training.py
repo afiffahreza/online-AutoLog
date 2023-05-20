@@ -1,8 +1,10 @@
 import os, datetime
+import pandas as pd
 from src.logger import get_logs
 from src.scoring import Scoring
-from src.model import MultilayerAutoEncoder
+from src.model import MultilayerAutoEncoder, save_model
 from grafana_loki_client import Client
+from sklearn.preprocessing import MinMaxScaler
 
 def file_scoring(filename):
     print("Reading baseline score from", filename)
@@ -11,7 +13,7 @@ def file_scoring(filename):
     return scoring.calculate_baseline_score()
 
 def loki_scoring(loki_client, app, baseline_time_start, baseline_time_end, log_period, save_path=None):
-    print("Scoring baseline logs for", app)
+    print("Collecting & scoring baseline logs for", app)
     print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     time_start = baseline_time_start
 
@@ -31,6 +33,25 @@ def loki_scoring(loki_client, app, baseline_time_start, baseline_time_end, log_p
     print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     return scoring.calculate_baseline_score()
 
+def model_training(scores, save_path=None):
+    print("Training model...")
+    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    df = pd.DataFrame.from_dict(scores)
+    x_train = df.values
+    scaler = MinMaxScaler()
+    x_train_scaled = scaler.fit_transform(x_train)
+    input_dim = x_train.shape[1]
+    autoencoder = MultilayerAutoEncoder(input_dim = input_dim)
+    history, threshold = autoencoder.train(x_train_scaled, x_train_scaled)
+
+    if save_path is not None:
+        save_model(autoencoder, save_path)
+
+    print("Finished training model...")
+    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    return autoencoder, threshold
+
 if __name__ == "__main__":
 
     starting_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -44,7 +65,7 @@ if __name__ == "__main__":
     baseline_time_end = os.environ.get('BASELINE_TIME_END', '2023-05-18T22:10:00Z')
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
     mode = os.environ.get('MODE', 'file')
-    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './output/test230520/')
+    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './output/test230519/')
 
     if not os.path.exists(prefix_output_dir):
         os.makedirs(prefix_output_dir)
@@ -69,7 +90,12 @@ if __name__ == "__main__":
             score = loki_scoring(loki_client, app, baseline_time_start, baseline_time_end, log_period, filename)
         scores[app] = score
 
-    print("Baseline scores: ", scores)
+    model_filename = prefix_output_dir + 'model.pkl'
+    autoencoder, threshold = model_training(scores, model_filename)
+
+    print("Model Summary: ")
+    autoencoder.summary()
+    print("Threshold: ", threshold)
 
     print("\n")
     print("Finished training...")
