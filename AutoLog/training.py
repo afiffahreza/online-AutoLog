@@ -2,7 +2,7 @@ import os, datetime
 import pandas as pd
 from src.logger import get_logs
 from src.scoring import Scoring
-from src.model import MultilayerAutoEncoder, save_model
+from src.model import MultilayerAutoEncoder, save_threshold
 from grafana_loki_client import Client
 from sklearn.preprocessing import MinMaxScaler
 
@@ -46,7 +46,10 @@ def model_training(scores, save_path=None):
     history, threshold = autoencoder.train(x_train_scaled, x_train_scaled)
 
     if save_path is not None:
-        save_model(autoencoder, save_path)
+        model_file = save_path + "model.h5"
+        autoencoder.autoencoder.save(model_file)
+        threshold_file = save_path + "threshold.pkl"
+        save_threshold(threshold, threshold_file)
 
     print("Finished training model...")
     print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -90,8 +93,7 @@ if __name__ == "__main__":
             score = loki_scoring(loki_client, app, baseline_time_start, baseline_time_end, log_period, filename)
         scores[app] = score
 
-    model_filename = prefix_output_dir + 'model.pkl'
-    autoencoder, threshold = model_training(scores, model_filename)
+    autoencoder, threshold = model_training(scores, prefix_output_dir)
 
     print("Model Summary: ")
     autoencoder.summary()

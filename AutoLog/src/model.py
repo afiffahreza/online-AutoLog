@@ -113,11 +113,11 @@ def compute(df_error, threshold):
     print('F1 = ', f1);
     print('false alarm = ', false_alarm);
 
-def save_model(model, path):
+def save_threshold(threshold, path):
     with open(path, 'wb') as f:
-        pickle.dump(model, f)
+        pickle.dump(threshold, f)
 
-def load_model(path):
+def load_threshold(path):
     with open(path, 'rb') as f:
-        model = pickle.load(f)
-    return model
+        threshold = pickle.load(f)
+    return threshold

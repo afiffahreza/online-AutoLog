@@ -22,10 +22,10 @@ def model_serving(scores, filename):
     print("Detecting anomalousness...")
     print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
-    autoencoder = load_model(filename)
+    autoencoder, threshold = load_model(filename)
     df = pd.DataFrame.from_dict(scores)
     x = df.values
-    anomaly = autoencoder.predict(x)
+    anomaly = autoencoder.predict(x, threshold)
 
     print("Finished training model...")
     print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -53,5 +53,8 @@ if __name__ == "__main__":
             scores[app] = serve_scoring(loki_client, app, log_period, filename)
         
         print("Scores: ", scores)
+
+        anomaly = model_serving(scores, prefix_output_dir + 'model.pkl')
+        print("Anomaly: ", anomaly)
 
         time.sleep(log_period)
