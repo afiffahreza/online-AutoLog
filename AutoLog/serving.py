@@ -2,7 +2,7 @@ import os, datetime, time
 import pandas as pd
 from src.logger import get_logs
 from src.scoring import Scoring
-from src.model import load_model
+from src.model import MultilayerAutoEncoder
 from grafana_loki_client import Client
 
 def serve_scoring(loki_client, app, log_period, filename):
@@ -18,17 +18,12 @@ def serve_scoring(loki_client, app, log_period, filename):
 
     return scoring.calculate_score(lines)
 
-def model_serving(scores, filename):
-    print("Detecting anomalousness...")
-    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
-    autoencoder, threshold = load_model(filename)
-    df = pd.DataFrame.from_dict(scores)
+def model_serving(autoencoder, scores):
+    df = pd.DataFrame(scores, index=[0])
+    print(df)
     x = df.values
-    anomaly = autoencoder.predict(x, threshold)
-
-    print("Finished training model...")
-    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print(x)
+    anomaly = autoencoder.predict(x, autoencoder.threshold)
     return anomaly
 
 if __name__ == "__main__":
@@ -45,6 +40,10 @@ if __name__ == "__main__":
     print("\n")
 
     loki_client = Client(base_url=loki_url)
+    autoencoder = MultilayerAutoEncoder()
+    autoencoder.load_model(prefix_output_dir)
+
+    print("Threshold: ", autoencoder.threshold)
     
     while True:
         scores = {}
@@ -52,9 +51,7 @@ if __name__ == "__main__":
             filename = prefix_output_dir + app + '-baseline-score.pkl'
             scores[app] = serve_scoring(loki_client, app, log_period, filename)
         
-        print("Scores: ", scores)
-
-        anomaly = model_serving(scores, prefix_output_dir + 'model.pkl')
+        anomaly = model_serving(autoencoder, scores)
         print("Anomaly: ", anomaly)
 
         time.sleep(log_period)

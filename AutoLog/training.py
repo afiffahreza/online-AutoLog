@@ -46,10 +46,7 @@ def model_training(scores, save_path=None):
     history, threshold = autoencoder.train(x_train_scaled, x_train_scaled)
 
     if save_path is not None:
-        model_file = save_path + "model.h5"
-        autoencoder.autoencoder.save(model_file)
-        threshold_file = save_path + "threshold.pkl"
-        save_threshold(threshold, threshold_file)
+        autoencoder.save_model(save_path)
 
     print("Finished training model...")
     print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))

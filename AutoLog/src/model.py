@@ -15,8 +15,15 @@ tf.random.set_seed(4999)
 
 class MultilayerAutoEncoder():
 
-    def __init__(self, input_dim):
+    def __init__(self, input_dim=None):
+        if input_dim is not None:
+            self.create_autoencoder(input_dim)
+            self.threshold = None
+        else:
+            self.autoencoder = None
+            self.threshold = None
 
+    def create_autoencoder(self, input_dim):
         input_layer = Input(shape=(input_dim,))
 
         layer = Dense(128, activation='relu',   #128
@@ -40,7 +47,19 @@ class MultilayerAutoEncoder():
                       kernel_initializer=initializers.RandomNormal())(layer)
 
         self.autoencoder = Model(inputs=input_layer, outputs=output_layer)
-
+    
+    def save_model(self, path):
+        model_file = path + "model.h5"
+        threshold_file = path + "threshold.pkl"
+        self.autoencoder.save(model_file)
+        save_threshold(self.threshold, threshold_file)
+    
+    def load_model(self, path):
+        model_file = path + "model.h5"
+        threshold_file = path + "threshold.pkl"
+        self.autoencoder = tf.keras.models.load_model(model_file)
+        self.threshold = load_threshold(threshold_file)
+    
     def summary(self, ):
         self.autoencoder.summary()
 
@@ -76,18 +95,22 @@ class MultilayerAutoEncoder():
         print(threshold)
 
         df_history = pd.DataFrame(history.history)
+        self.threshold = threshold
+
         return df_history, threshold
     
     def predict(self, x, threshold):
         predictions = self.autoencoder.predict(x)
         mse = np.mean(np.power(x - predictions, 2), axis=1)
+        print('mse: ')
+        print(mse)
         y_pred = [1 if e > threshold else 0 for e in mse]
         return y_pred
 
     def evaluate(self, x_test, y_test, threshold):
         predictions = self.autoencoder.predict(x_test)
 
-        mse=np.mean (np.power(x_test - predictions, 2), axis=1)
+        mse=np.mean(np.power(x_test - predictions, 2), axis=1)
         y_test = y_test.reset_index(drop=True)
         df_error = pd.DataFrame({'reconstruction_error' : mse, 'true_class' : y_test})
         print(mse)
