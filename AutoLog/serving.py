@@ -20,9 +20,7 @@ def serve_scoring(loki_client, app, log_period, filename):
 
 def model_serving(autoencoder, scores):
     df = pd.DataFrame(scores, index=[0])
-    print(df)
     x = df.values
-    print(x)
     anomaly = autoencoder.predict(x, autoencoder.threshold)
     return anomaly
 

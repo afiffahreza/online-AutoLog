@@ -67,7 +67,7 @@ class MultilayerAutoEncoder():
 
         epochs = 50
         batch_size = 2048
-        validation_split = 0.1
+        validation_split = 0.2
 
         print('Start training.')
 
@@ -90,7 +90,7 @@ class MultilayerAutoEncoder():
         val_predictions = self.autoencoder.predict(x_val)
         val_mse = np.mean(np.power(x_val - val_predictions, 2), axis=1)
 
-        threshold = np.percentile(val_mse , 90)
+        threshold = np.percentile(val_mse , 99.99)
         print('Current threshold: ')
         print(threshold)
 
