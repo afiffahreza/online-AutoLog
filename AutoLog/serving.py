@@ -31,7 +31,7 @@ if __name__ == "__main__":
     applications = os.environ.get('APPLICATIONS', 'frontend cartservice productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice').split(' ')
     log_period = int(os.environ.get('LOG_PERIOD', 10))
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
-    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './output/test230519/')
+    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './output/test230521/')
 
     print("Parameters: ")
     print("Applications: ", applications)

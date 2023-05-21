@@ -149,3 +149,7 @@ class Scoring:
             local_weight = np.log2(1 + count)
             current_score += np.square(local_weight * self.calculate_new_entropy(term, count))
         return np.sqrt(current_score)
+
+    def print_terms(self):
+        for term in self.terms:
+            print(f'{term}: {self.terms[term]}')
