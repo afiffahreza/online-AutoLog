@@ -4,6 +4,7 @@ from src.logger import get_logs
 from src.scoring import Scoring
 from src.model import MultilayerAutoEncoder
 from grafana_loki_client import Client
+from prometheus_client import start_http_server, Summary
 
 def serve_scoring(loki_client, app, log_period, filename):
 
@@ -22,7 +23,7 @@ def model_serving(autoencoder, scores):
     df = pd.DataFrame(scores, index=[0])
     x = df.values
     anomaly = autoencoder.predict(x, autoencoder.threshold)
-    return anomaly
+    return anomaly[0]
 
 if __name__ == "__main__":
 
@@ -41,6 +42,9 @@ if __name__ == "__main__":
     autoencoder = MultilayerAutoEncoder()
     autoencoder.load_model(prefix_output_dir)
 
+    start_http_server(8000)
+    anomaly_metric = Summary('anomaly_score', 'Anomaly score')
+
     print("Threshold: ", autoencoder.threshold)
     
     while True:
@@ -51,5 +55,8 @@ if __name__ == "__main__":
         
         anomaly = model_serving(autoencoder, scores)
         print("Anomaly: ", anomaly)
+
+        # Push anomaly to prometheus
+        anomaly_metric.observe(anomaly)
 
         time.sleep(log_period)
