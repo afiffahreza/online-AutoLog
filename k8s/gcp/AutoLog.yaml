@@ -28,8 +28,30 @@ spec:
       containers:
       - image: afiffahreza/autolog-deployment:2
         name: autolog
-        resources: {}
+        resources:
+          limits:
+            cpu: 300m
+            memory: 640Mi
+          requests:
+            cpu: 300m
+            memory: 512Mi
         env:
           - name: LOKI_URL
             value: "http://loki.loki-stack.svc.cluster.local:3100"
 status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: autolog
+  name: autolog
+  namespace: online-autolog
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    run: autolog
