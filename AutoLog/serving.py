@@ -56,7 +56,6 @@ if __name__ == "__main__":
         anomaly = model_serving(autoencoder, scores)
         print("Anomaly: ", anomaly)
 
-        # Push anomaly to prometheus
         anomaly_metric.observe(anomaly)
 
         time.sleep(log_period)
