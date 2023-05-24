@@ -1,0 +1,6 @@
+README.md
+miniconda/
+dataset/
+.DS_Store
+validate.py
+scoringchecker.py
