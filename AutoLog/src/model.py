@@ -100,10 +100,9 @@ class MultilayerAutoEncoder():
         return df_history, threshold
     
     def predict(self, x, threshold):
-        predictions = self.autoencoder.predict(x)
+        predictions = self.autoencoder.predict(x, verbose=0)
         mse = np.mean(np.power(x - predictions, 2), axis=1)
-        print('mse: ')
-        print(mse)
+        print('RE: ', mse[0])
         y_pred = [1 if e > threshold else 0 for e in mse]
         return y_pred
 

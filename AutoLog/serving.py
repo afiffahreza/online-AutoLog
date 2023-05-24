@@ -4,7 +4,7 @@ from src.logger import get_logs
 from src.scoring import Scoring
 from src.model import MultilayerAutoEncoder
 from grafana_loki_client import Client
-from prometheus_client import start_http_server, Summary
+from prometheus_client import start_http_server, Enum
 
 def serve_scoring(loki_client, app, log_period, filename):
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     applications = os.environ.get('APPLICATIONS', 'frontend cartservice productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice').split(' ')
     log_period = int(os.environ.get('LOG_PERIOD', 10))
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
-    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './output/test230521/')
+    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './model/')
 
     print("Parameters: ")
     print("Applications: ", applications)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     autoencoder.load_model(prefix_output_dir)
 
     start_http_server(8000)
-    anomaly_metric = Summary('anomaly_score', 'Anomaly score')
+    anomaly_metric = Enum('autolog_anomaly', 'Anomaly metric', states=['normal', 'anomaly'])
 
     print("Threshold: ", autoencoder.threshold)
     
@@ -56,6 +56,6 @@ if __name__ == "__main__":
         anomaly = model_serving(autoencoder, scores)
         print("Anomaly: ", anomaly)
 
-        anomaly_metric.observe(anomaly)
+        anomaly_metric.state('anomaly' if anomaly == 1 else 'normal')
 
         time.sleep(log_period)

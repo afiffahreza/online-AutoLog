@@ -65,7 +65,7 @@ if __name__ == "__main__":
     baseline_time_end = os.environ.get('BASELINE_TIME_END', '2023-05-19T10:00:00Z')
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
     mode = os.environ.get('MODE', 'file')
-    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './output/test230521/')
+    prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './model/')
 
     if not os.path.exists(prefix_output_dir):
         os.makedirs(prefix_output_dir)
