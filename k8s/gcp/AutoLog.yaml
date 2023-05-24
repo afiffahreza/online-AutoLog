@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: online-autolog
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: autolog
+  name: autolog
+  namespace: online-autolog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: autolog
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: autolog
+    spec:
+      containers:
+      - image: afiffahreza/autolog-deployment:2
+        name: autolog
+        resources: {}
+        env:
+          - name: LOKI_URL
+            value: "http://loki.loki-stack.svc.cluster.local:3100"
+status: {}
