@@ -22,8 +22,8 @@ def serve_scoring(loki_client, app, log_period, filename):
 def model_serving(autoencoder, scores):
     df = pd.DataFrame(scores, index=[0])
     x = df.values
-    anomaly = autoencoder.predict(x, autoencoder.threshold)
-    return anomaly[0]
+    anomaly, RE = autoencoder.predict(x, autoencoder.threshold)
+    return anomaly[0], RE[0]
 
 if __name__ == "__main__":
 
@@ -46,6 +46,8 @@ if __name__ == "__main__":
     anomaly_metric = Enum('autolog_anomaly', 'Anomaly metric', states=['normal', 'anomaly'])
 
     print("Threshold: ", autoencoder.threshold)
+
+    time_start = datetime.datetime.now()
     
     while True:
         scores = {}
@@ -53,9 +55,9 @@ if __name__ == "__main__":
             filename = prefix_output_dir + app + '-baseline-score.pkl'
             scores[app] = serve_scoring(loki_client, app, log_period, filename)
         
-        anomaly = model_serving(autoencoder, scores)
-        print("Anomaly: ", anomaly)
+        anomaly, reconstruction_error = model_serving(autoencoder, scores)
+        print("Reconstruction error: ", reconstruction_error, " | Anomaly: ", anomaly)
 
         anomaly_metric.state('anomaly' if anomaly == 1 else 'normal')
 
-        time.sleep(log_period)
+        time.sleep(log_period - ((datetime.datetime.now() - time_start).total_seconds() % log_period))
