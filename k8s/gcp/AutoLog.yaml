@@ -26,7 +26,7 @@ spec:
         run: autolog
     spec:
       containers:
-      - image: afiffahreza/autolog-deployment:2
+      - image: afiffahreza/autolog-deployment:3
         name: autolog
         resources:
           limits:
