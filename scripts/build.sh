@@ -22,6 +22,6 @@ if [ "$KIND" == "deployment" ]; then
 fi
 
 if [ "$KIND" == "training" ]; then
-  docker buildx build --platform=linux/amd64 . -t afiffahreza/autolog-training:$TAG
+  docker buildx build --platform=linux/amd64 ./Dockerfile.training -t afiffahreza/autolog-training:$TAG
   docker push afiffahreza/autolog-training:$TAG
 fi
