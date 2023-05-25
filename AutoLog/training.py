@@ -1,4 +1,4 @@
-import os, datetime
+import os, datetime, subprocess
 import pandas as pd
 from src.logger import get_logs
 from src.scoring import Scoring
@@ -66,6 +66,12 @@ if __name__ == "__main__":
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
     mode = os.environ.get('MODE', 'file')
     prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './model/')
+    gcs_bucket = os.environ.get('GCS_BUCKET', 'autolog-gke')
+    environment = os.environ.get('ENVIRONMENT', 'local')
+
+    if environment != 'local':
+        subprocess.run(['echo', os.environ.get('GCLOUD_SERVICE_ACCOUNT'), '>', '/etc/gcloud/service-account.json'])
+        subprocess.run(['gcloud', 'auth', 'activate-service-account', '--key-file=/etc/gcloud/service-account.json'])
 
     if not os.path.exists(prefix_output_dir):
         os.makedirs(prefix_output_dir)
@@ -94,6 +100,9 @@ if __name__ == "__main__":
 
     print("Model Summary: ")
     autoencoder.summary()
+
+    print("Pushing model folder to GCS...")
+    subprocess.run(['gsutil', '-m', 'cp', '-r', prefix_output_dir, 'gs://' + gcs_bucket])
 
     print("\n")
     print("Finished training...")

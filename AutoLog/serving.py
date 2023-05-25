@@ -1,4 +1,4 @@
-import os, datetime, time
+import os, datetime, time, subprocess
 import pandas as pd
 from src.logger import get_logs
 from src.scoring import Scoring
@@ -31,6 +31,18 @@ if __name__ == "__main__":
     log_period = int(os.environ.get('LOG_PERIOD', 10))
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
     prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './model/')
+    gcs_bucket = os.environ.get('GCS_BUCKET', 'autolog-gke')
+    environment = os.environ.get('ENVIRONMENT', 'local')
+
+    if environment != 'local':
+        subprocess.run(['echo', os.environ.get('GCLOUD_SERVICE_ACCOUNT'), '>', '/etc/gcloud/service-account.json'])
+        subprocess.run(['gcloud', 'auth', 'activate-service-account', '--key-file=/etc/gcloud/service-account.json'])
+    
+    if not os.path.exists(prefix_output_dir):
+        os.makedirs(prefix_output_dir)
+    
+    last_path = prefix_output_dir.split('/')[-2]
+    subprocess.run(['gsutil', '-m', 'cp', '-r', 'gs://' + gcs_bucket + '/' + last_path + '/*', prefix_output_dir])
 
     print("Parameters: ")
     print("Applications: ", applications)
