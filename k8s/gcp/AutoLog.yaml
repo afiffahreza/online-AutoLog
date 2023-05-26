@@ -26,7 +26,7 @@ spec:
         run: autolog
     spec:
       containers:
-      - image: afiffahreza/autolog-deployment:3
+      - image: afiffahreza/autolog-deployment:5
         name: autolog
         resources:
           limits:
@@ -36,8 +36,6 @@ spec:
             cpu: 300m
             memory: 512Mi
         env:
-          - name: ENVIROMENT
-            value: "production"
           - name: LOKI_URL
             value: "http://loki.loki-stack.svc.cluster.local:3100"
           - name: GCLOUD_SERVICE_ACCOUNT
