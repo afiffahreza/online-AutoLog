@@ -36,8 +36,15 @@ spec:
             cpu: 300m
             memory: 512Mi
         env:
+          - name: ENVIROMENT
+            value: "production"
           - name: LOKI_URL
             value: "http://loki.loki-stack.svc.cluster.local:3100"
+          - name: GCLOUD_SERVICE_ACCOUNT
+            valueFrom:
+              secretKeyRef:
+                name: gcp-credentials
+                key: gcp-credentials.json
 status: {}
 ---
 apiVersion: v1

@@ -2,6 +2,7 @@ README.md
 miniconda/
 dataset/
 output/
+model/
 .DS_Store
 validate.py
 scoringchecker.py
