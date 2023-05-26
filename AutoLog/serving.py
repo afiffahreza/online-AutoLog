@@ -1,4 +1,4 @@
-import os, datetime, time, subprocess
+import os, datetime, time, subprocess, logging
 import pandas as pd
 from src.logger import get_logs
 from src.scoring import Scoring
@@ -34,7 +34,10 @@ if __name__ == "__main__":
     gcs_bucket = os.environ.get('GCS_BUCKET', 'autolog-gke')
     environment = os.environ.get('ENVIRONMENT', 'local')
 
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
     if environment != 'local':
+        logging.info("Running on GKE")
         subprocess.run(['echo', os.environ.get('GCLOUD_SERVICE_ACCOUNT'), '>', '/etc/gcloud/service-account.json'])
         subprocess.run(['gcloud', 'auth', 'activate-service-account', '--key-file=/etc/gcloud/service-account.json'])
     
@@ -42,22 +45,22 @@ if __name__ == "__main__":
         os.makedirs(prefix_output_dir)
     
     last_path = prefix_output_dir.split('/')[-2]
+    logging.info("Downloading model from GCS bucket")
     subprocess.run(['gsutil', '-m', 'cp', '-r', 'gs://' + gcs_bucket + '/' + last_path + '/*', prefix_output_dir])
 
-    print("Parameters: ")
-    print("Applications: ", applications)
-    print("Log period: ", log_period)
-    print("Loki URL: ", loki_url)
-    print("\n")
+    logging.info("Parameters: ")
+    logging.info("Applications: " + str(applications))
+    logging.info("Log period: " + str(log_period))
+    logging.info("Loki URL: " + loki_url)
 
     loki_client = Client(base_url=loki_url)
     autoencoder = MultilayerAutoEncoder()
     autoencoder.load_model(prefix_output_dir)
+    logging.info("Model loaded")
+    logging.info("Threshold: " + str(autoencoder.threshold))
 
     start_http_server(8000)
     anomaly_metric = Enum('autolog_anomaly', 'Anomaly metric', states=['normal', 'anomaly'])
-
-    print("Threshold: ", autoencoder.threshold)
 
     time_start = datetime.datetime.now()
     
@@ -68,7 +71,7 @@ if __name__ == "__main__":
             scores[app] = serve_scoring(loki_client, app, log_period, filename)
         
         anomaly, reconstruction_error = model_serving(autoencoder, scores)
-        print("Reconstruction error: ", reconstruction_error, " | Anomaly: ", anomaly)
+        logging.info("Reconstruction error: " + str(reconstruction_error) + " | Anomaly: " + str(anomaly))
 
         anomaly_metric.state('anomaly' if anomaly == 1 else 'normal')
 
