@@ -6,16 +6,14 @@ from src.model import MultilayerAutoEncoder
 from grafana_loki_client import Client
 from prometheus_client import start_http_server, Enum
 
-def serve_scoring(loki_client, app, log_period, filename):
+def serve_scoring(loki_client, app, current_time, log_period, filename):
 
     scoring = Scoring()
     scoring.load(filename)
 
-    tz = datetime.timezone(datetime.timedelta(hours=0))
-    time_end = datetime.datetime.now(tz).strftime('%Y-%m-%dT%H:%M:%SZ')
-    time_start = datetime.datetime.strptime(time_end, '%Y-%m-%dT%H:%M:%SZ') - datetime.timedelta(seconds=log_period)
+    time_start = datetime.datetime.strptime(current_time, '%Y-%m-%dT%H:%M:%SZ') - datetime.timedelta(seconds=log_period)
     time_start = time_start.strftime('%Y-%m-%dT%H:%M:%SZ')
-    lines = get_logs(loki_client, app, time_start, time_end)
+    lines = get_logs(loki_client, app, time_start, current_time)
 
     return scoring.calculate_score(lines)
 
@@ -66,12 +64,16 @@ if __name__ == "__main__":
     
     while True:
         scores = {}
+        tz = datetime.timezone(datetime.timedelta(hours=0))
+        current_time = datetime.datetime.now(tz).strftime('%Y-%m-%dT%H:%M:%SZ')
         for app in applications:
             filename = prefix_output_dir + app + '-baseline-score.pkl'
-            scores[app] = serve_scoring(loki_client, app, log_period, filename)
+            scores[app] = serve_scoring(loki_client, app, current_time, log_period, filename)
         
         anomaly, reconstruction_error = model_serving(autoencoder, scores)
         logging.info("Reconstruction error: " + str(reconstruction_error) + " | Anomaly: " + str(anomaly))
+
+        del scores
 
         anomaly_metric.state('anomaly' if anomaly == 1 else 'normal')
 
