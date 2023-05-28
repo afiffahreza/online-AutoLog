@@ -20,7 +20,7 @@ spec:
         run: fault-listener
     spec:
       containers:
-      - image: afiffahreza/autolog-fault-listener:2
+      - image: afiffahreza/autolog-fault-listener:3
         name: fault-listener
         resources:
           limits:

@@ -6,7 +6,7 @@ from werkzeug.serving import run_simple
 app = Flask(__name__)
 
 anomaly_metric = Enum(
-    'autolog_anomaly', 'Anomaly metric',
+    'autolog_injected_anomaly', 'Anomaly metric',
     states=['normal', 'anomaly']
 )
 
