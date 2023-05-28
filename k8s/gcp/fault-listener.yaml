@@ -45,4 +45,4 @@ spec:
     protocol: TCP
     targetPort: 5000
   selector:
-    run: autolog
+    run: fault-listener
