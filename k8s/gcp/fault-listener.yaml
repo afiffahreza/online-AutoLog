@@ -20,7 +20,7 @@ spec:
         run: fault-listener
     spec:
       containers:
-      - image: afiffahreza/autolog-fault-listener:3
+      - image: afiffahreza/autolog-fault-listener:8
         name: fault-listener
         resources:
           limits:
@@ -41,8 +41,8 @@ metadata:
   namespace: online-autolog
 spec:
   ports:
-  - port: 5000
+  - port: 8000
     protocol: TCP
-    targetPort: 5000
+    targetPort: 8000
   selector:
     run: fault-listener

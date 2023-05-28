@@ -1,9 +1,11 @@
-from flask import Flask
+from flask import Flask, redirect
+from flask_cors import CORS
 from prometheus_client import Enum, make_wsgi_app, Counter
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
 app = Flask(__name__)
+CORS(app)
 
 anomaly_metric = Enum(
     'autolog_injected_anomaly', 'Anomaly metric',
@@ -12,6 +14,12 @@ anomaly_metric = Enum(
 
 # Counter to track the number of injected anomalies
 injected_anomalies = Counter('injected_anomalies', 'Number of injected anomalies')
+
+
+# redirect get / to /metrics
+@app.route('/', methods=['GET'])
+def index():
+    return redirect('/metrics')
 
 
 @app.route('/fault', methods=['POST'])
@@ -42,4 +50,4 @@ def create_app():
 
 if __name__ == '__main__':
     dispatcher_app = create_app()
-    run_simple('localhost', 5000, dispatcher_app)
+    run_simple('localhost', 8000, dispatcher_app)

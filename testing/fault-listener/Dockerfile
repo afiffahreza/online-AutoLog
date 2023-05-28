@@ -6,4 +6,6 @@ RUN pip install -r /tmp/requirements.txt
 COPY . /app
 WORKDIR /app
 
+EXPOSE 8000
+
 CMD ["python", "fault_listener.py"]

@@ -51,14 +51,7 @@ prometheus:
       static_configs:
         - targets:
           - autolog.online-autolog.svc.cluster.local:8000
+          - fault-listener.online-autolog.svc.cluster.local:8000
       scheme: http
       scrape_interval: 10s
       scrape_timeout: 5s
-    - job_name: 'fault-listener'
-      static_configs:
-        - targets:
-          - fault-listener.online-autolog.svc.cluster.local:5000
-      metrics_path: /metrics
-      scheme: http
-      scrape_interval: 10s
-      scrape_timeout: 5s 
