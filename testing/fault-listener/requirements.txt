@@ -1,3 +1,4 @@
-flask
+gunicorn
 prometheus-client
-flask-cors
+fastapi
+uvicorn

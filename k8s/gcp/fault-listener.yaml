@@ -20,8 +20,10 @@ spec:
         run: fault-listener
     spec:
       containers:
-      - image: afiffahreza/autolog-fault-listener:8
+      - image: afiffahreza/autolog-fault-listener:10
         name: fault-listener
+        ports:
+        - containerPort: 8000
         resources:
           limits:
             cpu: 200m

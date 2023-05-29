@@ -1,11 +1,12 @@
-from flask import Flask, redirect
-from flask_cors import CORS
-from prometheus_client import Enum, make_wsgi_app, Counter
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from werkzeug.serving import run_simple
+from prometheus_client import Enum, make_asgi_app, Counter
+from fastapi import FastAPI
 
-app = Flask(__name__)
-CORS(app)
+# Create app
+app = FastAPI(debug=False)
+
+# Add prometheus asgi middleware to route /metrics requests
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 anomaly_metric = Enum(
     'autolog_injected_anomaly', 'Anomaly metric',
@@ -15,39 +16,15 @@ anomaly_metric = Enum(
 # Counter to track the number of injected anomalies
 injected_anomalies = Counter('injected_anomalies', 'Number of injected anomalies')
 
-
-# redirect get / to /metrics
-@app.route('/', methods=['GET'])
-def index():
-    return redirect('/metrics')
-
-
-@app.route('/fault', methods=['POST'])
-def inject_anomaly():
-    # Increment the counter for injected anomalies
-    injected_anomalies.inc()
-
-    # Set the anomaly metric to 'anomaly'
+# /fault endpoint to inject anomaly
+@app.post("/fault")
+async def inject_anomaly():
     anomaly_metric.state('anomaly')
+    injected_anomalies.inc()
+    return {"message": "Anomaly injected"}
 
-    return {'message':'Anomaly injected successfully'}
-
-
-@app.route('/reset', methods=['POST'])
-def reset_anomaly():
-    # Set the anomaly metric back to 'normal'
+# /reset endpoint to reset anomaly
+@app.post("/reset")
+async def reset_anomaly():
     anomaly_metric.state('normal')
-
-    return 'Anomaly reset successfully'
-
-
-def create_app():
-    dispatcher_app = DispatcherMiddleware(app, {
-        '/metrics': make_wsgi_app()
-    })
-    return dispatcher_app
-
-
-if __name__ == '__main__':
-    dispatcher_app = create_app()
-    run_simple('localhost', 8000, dispatcher_app)
+    return {"message": "Anomaly reset"}
