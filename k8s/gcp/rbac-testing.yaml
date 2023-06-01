@@ -1,0 +1,32 @@
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  namespace: online-autolog
+  name: internal-kubectl
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: role-internalkubectl
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces", "services", "configmaps", "secrets", "ingresses", "endpoints", "persistentvolumeclaims", "persistentvolumes", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets"]
+  verbs: ["get", "watch", "list", "create", "delete", "patch", "update"]
+- apiGroups: ["chaos-mesh.org"]
+  resources: [ "*" ]
+  verbs: ["get", "list", "watch", "create", "delete", "patch", "update"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bind-internalkubectl
+subjects:
+- kind: ServiceAccount
+  name: internal-kubectl
+  namespace: online-autolog
+roleRef:
+  kind: ClusterRole
+  name: role-internalkubectl
+  apiGroup: rbac.authorization.k8s.io

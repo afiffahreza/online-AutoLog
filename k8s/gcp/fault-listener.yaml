@@ -19,6 +19,7 @@ spec:
       labels:
         run: fault-listener
     spec:
+      serviceAccountName: internal-kubectl
       containers:
       - image: afiffahreza/autolog-fault-listener:10
         name: fault-listener
