@@ -2,13 +2,13 @@ kind: PodChaos
 apiVersion: chaos-mesh.org/v1alpha1
 metadata:
   namespace: default
-  name: test1
+  name: pod-kill-1
 spec:
   selector:
     namespaces:
       - default
     labelSelectors:
-      app: checkoutservice
+      app: shippingservice
   mode: all
-  action: pod-failure
-  duration: 30s
+  action: pod-kill
+  duration: 10s

@@ -14,7 +14,7 @@ def inject_anomaly(api, resource_file, chaos_type):
         body=resource_dict,
     )
 
-    print("Pod failure injected")
+    print("Anomaly injected")
 
 def remove_anomaly(api, resource_file, chaos_type):
     resource_dict = yaml.load(open(resource_file), Loader=yaml.FullLoader)
@@ -30,15 +30,22 @@ def remove_anomaly(api, resource_file, chaos_type):
         name=resource_name,
     )
 
-    print("Pod failure removed")
+    print("Anomaly removed")
 
 if __name__ == '__main__':
     config.load_kube_config()
 
     api = client.CustomObjectsApi()
 
-    resource_file = './pod-failure/test1.yaml'
-    
-    inject_anomaly(api, resource_file, "podchaos")
-    time.sleep(100)
-    remove_anomaly(api, resource_file, "podchaos")
+    resource_files = [
+        './podchaos/pod-failure-1.yaml',
+        './podchaos/pod-kill-1.yaml',
+        './stresschaos/memory-stress-1.yaml',
+        './stresschaos/cpu-stress-1.yaml',
+    ]
+
+    for resource_file in resource_files:
+        chaos_type = resource_file.split('/')[1].split('-')[0]
+        inject_anomaly(api, resource_file, chaos_type)
+        time.sleep(30)
+        remove_anomaly(api, resource_file, chaos_type)
