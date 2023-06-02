@@ -50,10 +50,11 @@ if __name__ == "__main__":
     applications = os.environ.get('APPLICATIONS', 'frontend cartservice productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice').split(' ')
     template_files_prefix = os.environ.get('TEMPLATE_FILES_PREFIX', './templates/')
     template_files = os.environ.get('TEMPLATE_FILES', 'podchaos/pod-failure.yaml podchaos/pod-kill.yaml').split(' ')
-    anomaly_duration = int(os.environ.get('ANOMALY_DURATION', '10'))
-    anomaly_graceful = int(os.environ.get('ANOMALY_GRACEFUL', '5'))
+    anomaly_duration = int(os.environ.get('ANOMALY_DURATION', '30'))
+    anomaly_graceful = int(os.environ.get('ANOMALY_GRACEFUL', '10'))
     anomaly_interval = int(os.environ.get('ANOMALY_INTERVAL', '60'))
     target_anomalies = int(os.environ.get('TARGET_ANOMALIES', '5'))
+    environment = os.environ.get('ENVIRONMENT', 'dev')
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(process)d] [%(levelname)s] %(message)s')
 
@@ -68,7 +69,10 @@ if __name__ == "__main__":
     logging.info("Starting fault injector")
     current_anomalies = 0
 
-    config.load_kube_config()
+    if environment != 'dev':
+        config.load_incluster_config()
+    else:
+        config.load_kube_config()
     api = client.CustomObjectsApi()
 
     while True:

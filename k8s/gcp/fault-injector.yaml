@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: fault-injector
+  name: fault-injector
+  namespace: online-autolog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: fault-injector
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: fault-injector
+    spec:
+      serviceAccountName: internal-kubectl
+      containers:
+      - image: afiffahreza/autolog-fault-injector:3
+        name: fault-injector
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: 200m
+            memory: 240Mi
+          requests:
+            cpu: 100m
+            memory: 120Mi
+        env:
+        - name: ENVIRONMENT
+          value: prod
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: fault-injector
+  name: fault-injector
+  namespace: online-autolog
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    run: fault-injector

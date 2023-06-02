@@ -11,4 +11,4 @@ spec:
       app: change-me
   mode: all
   action: pod-failure
-  duration: 10s
+  duration: 30s
