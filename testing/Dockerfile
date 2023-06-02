@@ -14,4 +14,4 @@ WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "fault_listener:app", "-k", "uvicorn.workers.UvicornWorker"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "main:app", "-k", "uvicorn.workers.UvicornWorker"]
