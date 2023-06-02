@@ -1,5 +1,2 @@
-gunicorn
 prometheus-client
-fastapi
-uvicorn
 kubernetes

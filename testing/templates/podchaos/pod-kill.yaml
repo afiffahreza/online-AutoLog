@@ -1,17 +1,14 @@
+kind: PodChaos
 apiVersion: chaos-mesh.org/v1alpha1
-kind: StressChaos
 metadata:
-  name: memory-stress-1
   namespace: default
+  name: pod-kill
 spec:
-  mode: all
   selector:
     namespaces:
       - default
     labelSelectors:
-      app: checkoutservice
-  stressors:
-    memory:
-      workers: 4
-      size: '512MB'
+      app: change-me
+  mode: all
+  action: pod-kill
   duration: 10s
