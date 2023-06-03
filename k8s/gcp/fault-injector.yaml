@@ -21,7 +21,7 @@ spec:
     spec:
       serviceAccountName: internal-kubectl
       containers:
-      - image: afiffahreza/autolog-fault-injector:3
+      - image: afiffahreza/autolog-fault-injector:4
         name: fault-injector
         ports:
         - containerPort: 8000
@@ -36,15 +36,17 @@ spec:
         - name: ENVIRONMENT
           value: prod
         - name: TEMPLATE_FILES
-          value: podchaos/pod-failure.yaml
+          value: 'podchaos/pod-failure.yaml podchaos/pod-kill.yaml'
         - name: ANOMALY_DURATION
           value: '20'
         - name: ANOMALY_GRACEFUL
-          value: '10'
+          value: '20'
         - name: ANOMALY_INTERVAL
           value: '60'
+        - name: ANOMALY_DETECTION_TIME
+          value: '20'
         - name: TARGET_ANOMALIES
-          value: '500'
+          value: '300'
 status: {}
 ---
 apiVersion: v1
