@@ -2,18 +2,19 @@ import yaml, time, threading, logging, os, random
 from kubernetes import config, client
 from prometheus_client import Enum, Counter, start_http_server
 
-def anomaly_metric_on(anomaly_metric, injected_anomalies, anomaly_detection_time=10.0):
+def anomaly_metric_on(anomaly_metric, injected_anomalies, anomaly_detection_time):
     # set the anomaly metric to 'anomaly' and increment the injected anomalies counter after 20s that the function is called
     threading.Timer(anomaly_detection_time, anomaly_metric.state, args=['anomaly']).start()
     threading.Timer(anomaly_detection_time, injected_anomalies.inc).start()
 
-def anomaly_metric_off(anomaly_metric, anomaly_detection_time=10.0):
+def anomaly_metric_off(anomaly_metric, anomaly_detection_time):
     # set the anomaly metric to 'normal' after 20s that the function is called
     threading.Timer(anomaly_detection_time, anomaly_metric.state, args=['normal']).start()
 
-def inject_anomaly(api, resource_file, target):
+def inject_anomaly(api, resource_file, target, anomaly_duration):
     resource_dict = yaml.load(open(resource_file), Loader=yaml.FullLoader)
     resource_dict['spec']['selector']['labelSelectors']['app'] = target
+    resource_dict['spec']['duration'] = str(anomaly_duration) + 's'
     name = resource_dict['metadata']['name']
     logging.info("Injecting anomaly: " + name + " to " + target)
 
@@ -53,6 +54,7 @@ if __name__ == "__main__":
     anomaly_duration = int(os.environ.get('ANOMALY_DURATION', '20'))
     anomaly_graceful = int(os.environ.get('ANOMALY_GRACEFUL', '10'))
     anomaly_interval = int(os.environ.get('ANOMALY_INTERVAL', '60'))
+    anomaly_detection_time = int(os.environ.get('ANOMALY_DETECTION_TIME', '10'))
     target_anomalies = int(os.environ.get('TARGET_ANOMALIES', '5'))
     environment = os.environ.get('ENVIRONMENT', 'dev')
 
@@ -75,17 +77,16 @@ if __name__ == "__main__":
         config.load_kube_config()
     api = client.CustomObjectsApi()
 
-
     while True:
         if current_anomalies < target_anomalies:
             target = random.choice(applications)
             template_file = random.choice(template_files)
 
-            injected = inject_anomaly(api, template_files_prefix + template_file, target)
-            anomaly_metric_on(anomaly_metric, injected_anomalies)
+            injected = inject_anomaly(api, template_files_prefix + template_file, target, anomaly_duration)
+            anomaly_metric_on(anomaly_metric, injected_anomalies, anomaly_detection_time)
 
             time.sleep(anomaly_duration)
-            anomaly_metric_off(anomaly_metric)
+            anomaly_metric_off(anomaly_metric, anomaly_detection_time)
 
             time.sleep(anomaly_graceful)
             remove_anomaly(api, template_files_prefix + template_file, injected)
