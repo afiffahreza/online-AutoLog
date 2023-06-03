@@ -2,14 +2,14 @@ import yaml, time, threading, logging, os, random
 from kubernetes import config, client
 from prometheus_client import Enum, Counter, start_http_server
 
-def anomaly_metric_on(anomaly_metric, injected_anomalies):
-    # set the anomaly metric to 'anomaly' and increment the injected anomalies counter after 10s that the function is called
-    threading.Timer(10.0, anomaly_metric.state, args=['anomaly']).start()
-    threading.Timer(10.0, injected_anomalies.inc).start()
+def anomaly_metric_on(anomaly_metric, injected_anomalies, anomaly_detection_time=10.0):
+    # set the anomaly metric to 'anomaly' and increment the injected anomalies counter after 20s that the function is called
+    threading.Timer(anomaly_detection_time, anomaly_metric.state, args=['anomaly']).start()
+    threading.Timer(anomaly_detection_time, injected_anomalies.inc).start()
 
-def anomaly_metric_off(anomaly_metric):
-    # set the anomaly metric to 'normal' after 10s that the function is called
-    threading.Timer(10.0, anomaly_metric.state, args=['normal']).start()
+def anomaly_metric_off(anomaly_metric, anomaly_detection_time=10.0):
+    # set the anomaly metric to 'normal' after 20s that the function is called
+    threading.Timer(anomaly_detection_time, anomaly_metric.state, args=['normal']).start()
 
 def inject_anomaly(api, resource_file, target):
     resource_dict = yaml.load(open(resource_file), Loader=yaml.FullLoader)
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     applications = os.environ.get('APPLICATIONS', 'frontend cartservice productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice').split(' ')
     template_files_prefix = os.environ.get('TEMPLATE_FILES_PREFIX', './templates/')
     template_files = os.environ.get('TEMPLATE_FILES', 'podchaos/pod-failure.yaml podchaos/pod-kill.yaml').split(' ')
-    anomaly_duration = int(os.environ.get('ANOMALY_DURATION', '30'))
+    anomaly_duration = int(os.environ.get('ANOMALY_DURATION', '20'))
     anomaly_graceful = int(os.environ.get('ANOMALY_GRACEFUL', '10'))
     anomaly_interval = int(os.environ.get('ANOMALY_INTERVAL', '60'))
     target_anomalies = int(os.environ.get('TARGET_ANOMALIES', '5'))
@@ -75,6 +75,7 @@ if __name__ == "__main__":
         config.load_kube_config()
     api = client.CustomObjectsApi()
 
+
     while True:
         if current_anomalies < target_anomalies:
             target = random.choice(applications)
@@ -84,8 +85,10 @@ if __name__ == "__main__":
             anomaly_metric_on(anomaly_metric, injected_anomalies)
 
             time.sleep(anomaly_duration)
-            remove_anomaly(api, template_files_prefix + template_file, injected)
             anomaly_metric_off(anomaly_metric)
+
+            time.sleep(anomaly_graceful)
+            remove_anomaly(api, template_files_prefix + template_file, injected)
 
             current_anomalies += 1
 

@@ -35,6 +35,16 @@ spec:
         env:
         - name: ENVIRONMENT
           value: prod
+        - name: TEMPLATE_FILES
+          value: podchaos/pod-failure.yaml
+        - name: ANOMALY_DURATION
+          value: '20'
+        - name: ANOMALY_GRACEFUL
+          value: '10'
+        - name: ANOMALY_INTERVAL
+          value: '60'
+        - name: TARGET_ANOMALIES
+          value: '500'
 status: {}
 ---
 apiVersion: v1

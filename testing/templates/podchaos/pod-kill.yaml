@@ -11,4 +11,4 @@ spec:
       app: change-me
   mode: all
   action: pod-kill
-  duration: 30s
+  duration: 20s
