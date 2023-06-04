@@ -35,6 +35,8 @@ spec:
         env:
         - name: ENVIRONMENT
           value: prod
+        - name: APPLICATIONS
+          value: 'currencyservice shippingservice emailservice checkoutservice recommendationservice'
         - name: TEMPLATE_FILES
           value: 'podchaos/pod-failure.yaml podchaos/pod-kill.yaml'
         - name: ANOMALY_DURATION
