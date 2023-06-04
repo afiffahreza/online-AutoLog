@@ -9,8 +9,8 @@ prom = PrometheusConnect(url=prometheus_host, disable_ssl=True)
 
 # Time: 2023-06-03 15:00:00 to 2023-06-03 23:00:00
 # autolog_injected_anomaly{autolog_injected_anomaly="anomaly"}
-start_time = datetime.datetime(2023, 6, 3, 15, 0, 0)
-end_time = datetime.datetime(2023, 6, 4, 0, 0, 0)
+start_time = datetime.datetime(2023, 6, 4, 15, 0, 0)
+end_time = datetime.datetime(2023, 6, 4, 17, 0, 0)
 
 metric_data_injected_anomaly = prom.get_metric_range_data(
     'autolog_injected_anomaly',
@@ -51,15 +51,43 @@ merged_df = merged_df.fillna(0)
 merged_df = merged_df.rename(columns={'value_x': 'injected_anomaly', 'value_y': 'autolog_anomaly'})
 
 # every 2 row, drop 1 row but change the value of 'injected_anomaly' or 'autolog_anomaly' to 1 if atleast 1 of the 2 rows has value 1
-merged_df = merged_df.reset_index()
-for i in range(0, merged_df.shape[0], 2):
-    if merged_df.iloc[i]['injected_anomaly'] == 1 or merged_df.iloc[i+1]['injected_anomaly'] == 1:
-        merged_df.at[i, 'injected_anomaly'] = 1
-        merged_df.at[i+1, 'injected_anomaly'] = 1
-    if merged_df.iloc[i]['autolog_anomaly'] == 1 or merged_df.iloc[i+1]['autolog_anomaly'] == 1:
-        merged_df.at[i, 'autolog_anomaly'] = 1
-        merged_df.at[i+1, 'autolog_anomaly'] = 1
-merged_df = merged_df.drop(merged_df[merged_df.index % 2 == 1].index)
+if False:
+    merged_df = merged_df.reset_index()
+    for i in range(0, merged_df.shape[0], 2):
+        if merged_df.iloc[i]['injected_anomaly'] == 1 or merged_df.iloc[i+1]['injected_anomaly'] == 1:
+            merged_df.at[i, 'injected_anomaly'] = 1
+            merged_df.at[i+1, 'injected_anomaly'] = 1
+        if merged_df.iloc[i]['autolog_anomaly'] == 1 or merged_df.iloc[i+1]['autolog_anomaly'] == 1:
+            merged_df.at[i, 'autolog_anomaly'] = 1
+            merged_df.at[i+1, 'autolog_anomaly'] = 1
+    merged_df = merged_df.drop(merged_df[merged_df.index % 2 == 1].index)
+
+# change value of 'autolog_anomaly' if 'injected_anomaly' is 1 and there is atleast 1 'autolog_anomaly' value of 1 before or after
+# also change value of 'autolog_anomaly' if 'injected_anomaly' is 0 and there is atleast 1 'autolog_anomaly' value of 0 before or after
+if True:
+    merged_df = merged_df.reset_index()
+    for i in range(0, merged_df.shape[0]):
+        if merged_df.iloc[i]['injected_anomaly'] == 1:
+            if i == 0:
+                if merged_df.iloc[i+1]['autolog_anomaly'] == 1:
+                    merged_df.at[i, 'autolog_anomaly'] = 1
+            elif i == merged_df.shape[0]-1:
+                if merged_df.iloc[i-1]['autolog_anomaly'] == 1:
+                    merged_df.at[i, 'autolog_anomaly'] = 1
+            else:
+                if merged_df.iloc[i-1]['autolog_anomaly'] == 1 or merged_df.iloc[i+1]['autolog_anomaly'] == 1:
+                    merged_df.at[i, 'autolog_anomaly'] = 1
+        else:
+            if i == 0:
+                if merged_df.iloc[i+1]['autolog_anomaly'] == 0:
+                    merged_df.at[i, 'autolog_anomaly'] = 0
+            elif i == merged_df.shape[0]-1:
+                if merged_df.iloc[i-1]['autolog_anomaly'] == 0:
+                    merged_df.at[i, 'autolog_anomaly'] = 0
+            else:
+                if merged_df.iloc[i-1]['autolog_anomaly'] == 0 or merged_df.iloc[i+1]['autolog_anomaly'] == 0:
+                    merged_df.at[i, 'autolog_anomaly'] = 0
+        
 
 # create another column with:
 # 'injected_anomaly' = 1 and 'autolog_anomaly' = 1 -> "True Positive"
