@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: autolog-pre-retrain
+  name: autolog-pre-retrain
+  namespace: online-autolog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: autolog-pre-retrain
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: autolog-pre-retrain
+    spec:
+      containers:
+      - image: afiffahreza/autolog-deployment:6
+        name: autolog-pre-retrain
+        resources:
+          limits:
+            cpu: 200m
+            memory: 640Mi
+          requests:
+            cpu: 200m
+            memory: 512Mi
+        env:
+          - name: LOKI_URL
+            value: "http://loki.loki-stack.svc.cluster.local:3100"
+          - name: GCLOUD_SERVICE_ACCOUNT
+            valueFrom:
+              secretKeyRef:
+                name: gcp-credentials
+                key: gcp-credentials.json
+          - name: PREFIX_OUTPUT_DIR
+            value: ./pre-retrain/
+          - name: APPLICATIONS
+            value: 'frontend cartservice productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice redis-cart'
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: autolog-pre-retrain
+  name: autolog-pre-retrain
+  namespace: online-autolog
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    run: autolog-pre-retrain
