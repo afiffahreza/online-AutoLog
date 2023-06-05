@@ -104,3 +104,8 @@ if __name__ == "__main__":
     logging.info("Finished training...")
     logging.info("Time end: " + str( datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     logging.info("Total time: " + str( datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(starting_time, '%Y-%m-%d %H:%M:%S')))
+
+    while True:
+        logging.info("Training is finished. Sleeping...")
+        import time
+        time.sleep(86400)
