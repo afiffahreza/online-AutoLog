@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: autolog-training
+  name: autolog-training
+  namespace: online-autolog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: autolog-training
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: autolog-training
+    spec:
+      containers:
+      - image: afiffahreza/autolog-training:1
+        name: autolog-training
+        resources:
+          limits:
+            cpu: 500m
+            memory: 4000Mi
+          requests:
+            cpu: 300m
+            memory: 3000Mi
+        env:
+          - name: LOKI_URL
+            value: "http://loki.loki-stack.svc.cluster.local:3100"
+          - name: GCLOUD_SERVICE_ACCOUNT
+            valueFrom:
+              secretKeyRef:
+                name: gcp-credentials
+                key: gcp-credentials.json
+          - name: PREFIX_OUTPUT_DIR
+            value: "./models/"
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: autolog-training
+  name: autolog-training
+  namespace: online-autolog
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    run: autolog-training
