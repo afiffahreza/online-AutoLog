@@ -1,4 +1,4 @@
-import os, datetime, subprocess
+import os, datetime, subprocess, logging
 import pandas as pd
 from src.logger import get_logs
 from src.scoring import Scoring
@@ -7,14 +7,14 @@ from grafana_loki_client import Client
 from sklearn.preprocessing import MinMaxScaler
 
 def file_scoring(filename):
-    print("Reading baseline score from", filename)
+    logging.info("Reading baseline score from " + str(filename))
     scoring = Scoring()
     scoring.load(filename)
     return scoring.calculate_baseline_score()
 
 def loki_scoring(loki_client, app, baseline_time_start, baseline_time_end, log_period, save_path=None):
-    print("Collecting & scoring baseline logs for", app)
-    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    logging.info("Collecting & scoring baseline logs for " + str(app))
+    logging.info("Time: " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     time_start = baseline_time_start
 
     scoring = Scoring()
@@ -29,13 +29,13 @@ def loki_scoring(loki_client, app, baseline_time_start, baseline_time_end, log_p
     if save_path is not None:
         scoring.save(save_path)
 
-    print("Finished scoring baseline logs for", app)
-    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    logging.info("Finished scoring baseline logs for " + str(app))
+    logging.info("Time: " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     return scoring.calculate_baseline_score()
 
 def model_training(scores, save_path=None):
-    print("Training model...")
-    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    logging.info("Training model...")
+    logging.info("Time: " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
     df = pd.DataFrame.from_dict(scores)
     x_train = df.values
@@ -48,23 +48,24 @@ def model_training(scores, save_path=None):
     if save_path is not None:
         autoencoder.save_model(save_path)
 
-    print("Finished training model...")
-    print("Time: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    logging.info("Finished training model...")
+    logging.info("Time: " + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     return autoencoder, threshold
 
 if __name__ == "__main__":
 
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+
     starting_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print("Starting training...")
-    print("Time start: ", starting_time)
-    print("\n")
+    logging.info("Starting training...")
+    logging.info("Time start: " + str(starting_time))
 
     applications = os.environ.get('APPLICATIONS', 'frontend cartservice productcatalogservice currencyservice paymentservice shippingservice emailservice checkoutservice recommendationservice adservice').split(' ')
     log_period = int(os.environ.get('LOG_PERIOD', 10))
     baseline_time_start = os.environ.get('BASELINE_TIME_START', '2023-05-18T10:00:00Z')
     baseline_time_end = os.environ.get('BASELINE_TIME_END', '2023-05-19T10:00:00Z')
     loki_url = os.environ.get('LOKI_URL', 'http://localhost:3100')
-    mode = os.environ.get('MODE', 'file')
+    mode = os.environ.get('MODE', 'loki')
     prefix_output_dir = os.environ.get('PREFIX_OUTPUT_DIR', './model/')
     gcs_bucket = os.environ.get('GCS_BUCKET', 'autolog-gke')
     environment = os.environ.get('ENVIRONMENT', 'local')
@@ -76,13 +77,12 @@ if __name__ == "__main__":
     if not os.path.exists(prefix_output_dir):
         os.makedirs(prefix_output_dir)
 
-    print("Parameters: ")
-    print("Applications: ", applications)
-    print("Log period: ", log_period)
-    print("Baseline start at: ", baseline_time_start)
-    print("Baseline end at: ", baseline_time_end)
-    print("Loki URL: ", loki_url)
-    print("\n")
+    logging.info("Parameters: ")
+    logging.info("Applications: " + str(applications))
+    logging.info("Log period: " + str(log_period))
+    logging.info("Baseline start at: " + str(baseline_time_start))
+    logging.info("Baseline end at: " + str(baseline_time_end))
+    logging.info("Loki URL: " + str(loki_url))
 
     loki_client = Client(base_url=loki_url)
     
@@ -98,13 +98,9 @@ if __name__ == "__main__":
 
     autoencoder, threshold = model_training(scores, prefix_output_dir)
 
-    print("Model Summary: ")
-    autoencoder.summary()
-
-    print("Pushing model folder to GCS...")
+    logging.info("Pushing model folder to GCS...")
     subprocess.run(['gsutil', '-m', 'cp', '-r', prefix_output_dir, 'gs://' + gcs_bucket])
 
-    print("\n")
-    print("Finished training...")
-    print("Time end: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    print("Total time: ", datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(starting_time, '%Y-%m-%d %H:%M:%S'))
+    logging.info("Finished training...")
+    logging.info("Time end: " + str( datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    logging.info("Total time: " + str( datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(starting_time, '%Y-%m-%d %H:%M:%S')))

@@ -7,7 +7,7 @@ from keras.layers import Input, Dense, Dropout
 from keras import regularizers, initializers
 from sklearn.metrics import confusion_matrix
 from time import time
-import pickle
+import pickle, logging
 
 mpl.use('TkAgg')
 np.random.seed(4999)
@@ -69,7 +69,7 @@ class MultilayerAutoEncoder():
         batch_size = 2048
         validation_split = 0.2
 
-        print('Start training.')
+        logging.info('Start training.')
 
         self.autoencoder.compile(optimizer='rmsprop',
                                  loss='mean_squared_error')
@@ -80,19 +80,19 @@ class MultilayerAutoEncoder():
                                        shuffle=True,
                                        validation_split=validation_split,
                                        verbose=2)
-        print(time() - start)
+        logging.info(time() - start)
 
         x_val = x[x.shape[0]-(int)(x.shape[0]*validation_split):x.shape[0]-1, :]
 
-        print(' + validation_size    : ',  x_val.shape)
-        print(x_val)
+        logging.info(' + validation_size    : ' +  str(x_val.shape))
+        logging.info(x_val)
 
         val_predictions = self.autoencoder.predict(x_val)
         val_mse = np.mean(np.power(x_val - val_predictions, 2), axis=1)
 
         threshold = np.percentile(val_mse , 99.99)
-        print('Current threshold: ')
-        print(threshold)
+        logging.info('Current threshold: ')
+        logging.info(threshold)
 
         df_history = pd.DataFrame(history.history)
         self.threshold = threshold
@@ -111,10 +111,10 @@ class MultilayerAutoEncoder():
         mse=np.mean(np.power(x_test - predictions, 2), axis=1)
         y_test = y_test.reset_index(drop=True)
         df_error = pd.DataFrame({'reconstruction_error' : mse, 'true_class' : y_test})
-        print(mse)
-        print('y_test***: ')
-        print(df_error.to_string())
-        print(df_error.describe(include='all'))
+        logging.info(mse)
+        logging.info('y_test***: ')
+        logging.info(df_error.to_string())
+        logging.info(df_error.describe(include='all'))
 
         compute(df_error, threshold)
 
@@ -129,10 +129,10 @@ def compute(df_error, threshold):
     f1 = 2 * ( (precision*recall) / (precision+recall) )
     false_alarm = 1. * fp / (tn + fp)
 
-    print('R  = ', recall );
-    print('P  = ', precision);
-    print('F1 = ', f1);
-    print('false alarm = ', false_alarm);
+    logging.info('R  = ', recall );
+    logging.info('P  = ', precision);
+    logging.info('F1 = ', f1);
+    logging.info('false alarm = ', false_alarm);
 
 def save_threshold(threshold, path):
     with open(path, 'wb') as f:
