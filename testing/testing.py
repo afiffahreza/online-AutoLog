@@ -35,8 +35,8 @@ if __name__ == '__main__':
     prom = PrometheusConnect(url=prometheus_host, disable_ssl=True)
 
     # autolog_injected_anomaly{autolog_injected_anomaly="anomaly"}
-    start_time = datetime.datetime(2023, 6, 4, 14, 0, 0)
-    end_time = datetime.datetime(2023, 6, 5, 2, 0, 0)
+    start_time = datetime.datetime(2023, 6, 4, 0, 0, 0)
+    end_time = datetime.datetime(2023, 6, 5, 6, 0, 0)
 
     metric_data_injected_anomaly = prom.get_metric_range_data(
         'autolog_injected_anomaly',
@@ -76,12 +76,12 @@ if __name__ == '__main__':
     # rename columns
     merged_df = merged_df.rename(columns={'value_x': 'injected_anomaly', 'value_y': 'autolog_anomaly'})
 
-    # group every 5 rows with value 1 if there is at least one 1 in the group
-    merged_df['injected_anomaly'] = merged_df['injected_anomaly'].rolling(5).apply(lambda x: 1 if x.any() else 0, raw=True)
-    merged_df['autolog_anomaly'] = merged_df['autolog_anomaly'].rolling(5).apply(lambda x: 1 if x.any() else 0, raw=True)
+    # group every 10 rows with value 1 if there is at least one 1 in the group
+    merged_df['injected_anomaly'] = merged_df['injected_anomaly'].rolling(10).apply(lambda x: 1 if x.any() else 0, raw=True)
+    merged_df['autolog_anomaly'] = merged_df['autolog_anomaly'].rolling(10).apply(lambda x: 1 if x.any() else 0, raw=True)
 
-    # drop rows except the first one of the 5 rows group
-    merged_df = merged_df.iloc[::5, :]
+    # drop rows except the first one of the 10 rows group
+    merged_df = merged_df.iloc[::10, :]
     merged_df = merged_df.dropna()
 
     # count injected_anomaly and normal data
