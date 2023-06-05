@@ -1,6 +1,7 @@
 import os, datetime
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn import metrics
 from prometheus_api_client import PrometheusConnect, MetricRangeDataFrame
 
 def evaluate(df):
@@ -12,9 +13,17 @@ def evaluate(df):
     print("\n")
 
     # Confusion Matrix
+    # actual --> df['injected_anomaly']
+    # predicted --> df['autolog_anomaly']
+    actual = df['injected_anomaly'].tolist()
+    predicted = df['autolog_anomaly'].tolist()
+    confusion_matrix = metrics.confusion_matrix(actual, predicted)
+    confusion_matrix_display = metrics.ConfusionMatrixDisplay(confusion_matrix, display_labels=['True', 'False'])
     print("Confusion Matrix:")
-    print(pd.crosstab(df['injected_anomaly'], df['autolog_anomaly'], rownames=['Actual'], colnames=['Predicted'], margins=True))
+    print(pd.crosstab(pd.Series(actual), pd.Series(predicted), rownames=['Actual'], colnames=['Predicted'], margins=True))
     print("\n")
+    confusion_matrix_display.plot()
+    plt.show()
 
     # Recall, Precision, F1 Score, Accuracy
     recall = df[df['result'] == 'True Positive'].shape[0] / (df[df['result'] == 'True Positive'].shape[0] + df[df['result'] == 'False Negative'].shape[0])
@@ -35,8 +44,8 @@ if __name__ == '__main__':
     prom = PrometheusConnect(url=prometheus_host, disable_ssl=True)
 
     # autolog_injected_anomaly{autolog_injected_anomaly="anomaly"}
-    start_time = datetime.datetime(2023, 6, 4, 0, 0, 0)
-    end_time = datetime.datetime(2023, 6, 5, 6, 0, 0)
+    start_time = datetime.datetime(2023, 6, 3, 18, 0, 0)
+    end_time = datetime.datetime(2023, 6, 5, 18, 0, 0)
 
     metric_data_injected_anomaly = prom.get_metric_range_data(
         'autolog_injected_anomaly',
