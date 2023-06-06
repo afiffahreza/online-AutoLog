@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
-import matplotlib as mpl
 import tensorflow as tf
+import seaborn as sns
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 from keras.models import Model
 from keras.layers import Input, Dense, Dropout
 from keras import regularizers, initializers
@@ -30,13 +32,13 @@ class MultilayerAutoEncoder():
                         activity_regularizer=regularizers.l1(10e-5),
                         kernel_initializer=initializers.RandomNormal())(input_layer)
         
-        layer = Dropout(rate=0.6)(layer);
+        layer = Dropout(rate=0.6)(layer)
 
         layer = Dense(64, activation='tanh',    #64
                       activity_regularizer=regularizers.l1(10e-5),
                       kernel_initializer=initializers.RandomNormal())(layer)
         
-        layer = Dropout(rate=0.6)(layer);
+        layer = Dropout(rate=0.6)(layer)
 
         layer = Dense(128, activation='relu',   #128
                       activity_regularizer=regularizers.l1(10e-5),
@@ -63,7 +65,7 @@ class MultilayerAutoEncoder():
     def summary(self, ):
         self.autoencoder.summary()
 
-    def train(self, x, y):
+    def train(self, x, y, percentile=99.99, visualize=False):
 
         epochs = 50
         batch_size = 2048
@@ -82,6 +84,15 @@ class MultilayerAutoEncoder():
                                        verbose=2)
         logging.info(time() - start)
 
+        if visualize:
+            plt.plot(history.history['loss'])
+            plt.plot(history.history['val_loss'])
+            plt.title('model loss')
+            plt.ylabel('loss')
+            plt.xlabel('epoch')
+            plt.legend(['train', 'test'], loc='upper left')
+            plt.show()
+
         x_val = x[x.shape[0]-(int)(x.shape[0]*validation_split):x.shape[0]-1, :]
 
         logging.info(' + validation_size    : ' +  str(x_val.shape))
@@ -90,7 +101,7 @@ class MultilayerAutoEncoder():
         val_predictions = self.autoencoder.predict(x_val)
         val_mse = np.mean(np.power(x_val - val_predictions, 2), axis=1)
 
-        threshold = np.percentile(val_mse , 99.99)
+        threshold = np.percentile(val_mse , percentile)
         logging.info('Current threshold: ')
         logging.info(threshold)
 
@@ -105,7 +116,7 @@ class MultilayerAutoEncoder():
         y_pred = [1 if e > threshold else 0 for e in mse]
         return y_pred, mse
 
-    def evaluate(self, x_test, y_test, threshold):
+    def evaluate(self, x_test, y_test, threshold, visualize=False):
         predictions = self.autoencoder.predict(x_test)
 
         mse=np.mean(np.power(x_test - predictions, 2), axis=1)
@@ -116,9 +127,9 @@ class MultilayerAutoEncoder():
         logging.info(df_error.to_string())
         logging.info(df_error.describe(include='all'))
 
-        compute(df_error, threshold)
+        compute(df_error, threshold, visualize=visualize)
 
-def compute(df_error, threshold):
+def compute(df_error, threshold, visualize=False):
     y_pred = [1 if e > threshold else 0 for e in df_error.reconstruction_error.values]
     conf_matrix = confusion_matrix(df_error.true_class, y_pred)
 
@@ -129,10 +140,18 @@ def compute(df_error, threshold):
     f1 = 2 * ( (precision*recall) / (precision+recall) )
     false_alarm = 1. * fp / (tn + fp)
 
-    logging.info('R  = ', recall );
-    logging.info('P  = ', precision);
-    logging.info('F1 = ', f1);
-    logging.info('false alarm = ', false_alarm);
+    logging.info('R  = ' + str(recall) )
+    logging.info('P  = ' + str(precision))
+    logging.info('F1 = ' + str(f1))
+    logging.info('false alarm = ' + str(false_alarm))
+
+    if visualize:
+        sns.heatmap(conf_matrix, xticklabels=['Normal', 'Attack'], yticklabels=['Normal', 'Attack'], annot=True,fmt='d')
+        plt.title('Confusion matrix')
+        plt.ylabel('True class')
+        plt.xlabel('Predicted class')
+        plt.savefig('confusion_matrix_offline.png')
+        plt.show()
 
 def save_threshold(threshold, path):
     with open(path, 'wb') as f:

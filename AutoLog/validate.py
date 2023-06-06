@@ -1,20 +1,18 @@
 import pandas as pd
+import logging
 from datetime import datetime, timedelta
-from src.logger import preprocess
 from src.scoring import Scoring
-from os.path import dirname
-from src.model import MultilayerAutoEncoder, save_model
+from src.model import MultilayerAutoEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
-from drain3 import TemplateMiner
-from drain3.template_miner_config import TemplateMinerConfig
-from drain3.file_persistence import FilePersistence
 
 if __name__ == "__main__":
 
     starting_time = datetime.now()
+
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 
     print("Starting training...")
     print("Time: " + str(starting_time.strftime("%Y-%m-%d %H:%M:%S")))
@@ -49,7 +47,6 @@ if __name__ == "__main__":
     end_time = datetime.strptime("2006-01-04-08.05.00", "%Y-%m-%d-%H.%M.%S")
     time_iteration = 0
     while start_time < end_time:
-        # print("Time iteration: " + str(time_iteration) + " - " + str(start_time) + " - " + str(start_time + timedelta(seconds=log_period)))
         time_iteration_dict[time_iteration] = (start_time, start_time + timedelta(seconds=log_period))
         start_time += timedelta(seconds=log_period)
         time_iteration += 1
@@ -57,31 +54,16 @@ if __name__ == "__main__":
     # print count time iteration
     print("Time iteration count: " + str(time_iteration))
     log_per_time_per_entity = {}
-    # log_group_datetime = None
     time_iteration = 0
 
-    # print("Creating default scoring dict...")
-    # print("Time: " + str(datetime.now()))
     for time_iteration in time_iteration_dict:
         log_per_time_per_entity[time_iteration] = {}
         for application in applications:
             log_per_time_per_entity[time_iteration][application] = []
         log_per_time_per_entity[time_iteration]['label'] = 'OK'
-    # print("Done creating default scoring dict...")
-    # print("Time: " + str(datetime.now()))
-
-
-    persistence = FilePersistence("drain3_state.bin")
-
-    config = TemplateMinerConfig()
-    config.load(dirname(__file__) + "/drain3.ini")
-    config.profiling_enabled = False
-
-    template_miner = TemplateMiner(persistence, config)
 
     time_iteration = 0
     label = 'OK'
-    # error_lines = {}
     for log_line in log_lines:
         log = log_line.split(" ")
         log_datetime = datetime.strptime(log[4], "%Y-%m-%d-%H.%M.%S.%f")
@@ -95,75 +77,24 @@ if __name__ == "__main__":
         elif current_entity == "NUL":
             current_entity = "UNSPECIFIED"
         log_line_without_first_six = " ".join(log[6:])
-        template_miner.add_log_message(log_line_without_first_six)
-        # if log_group_datetime is None:
-        #     log_group_datetime = log_datetime
         while log_datetime > time_iteration_dict[time_iteration][1]:
             if log[0] == '-':
                 label = 'OK'
             time_iteration += 1
-        # if log_datetime - log_group_datetime > timedelta(seconds=log_period):
-        #     if log[0] == '-':
-        #         label = 'OK'
-        #     log_group_datetime = log_datetime
-        #     time_iteration += 1
         if time_iteration not in log_per_time_per_entity:
             log_per_time_per_entity[time_iteration] = {}
         if current_entity not in log_per_time_per_entity[time_iteration]:
             log_per_time_per_entity[time_iteration][current_entity] = []
         log_per_time_per_entity[time_iteration][current_entity].append(log_line_without_first_six)
         log_per_time_per_entity[time_iteration]['label'] = label
-        # if label == 'ALERT':
-        #     if time_iteration not in error_lines:
-        #         error_lines[time_iteration] = []
-        #     error_lines[time_iteration].append(log_line)
-
-    # Preprocess log lines
-    preprocessed_log_per_time_per_entity = {}
-    for time_iteration in log_per_time_per_entity:
-        for entity in log_per_time_per_entity[time_iteration]:
-            if entity == 'label':
-                continue
-            if time_iteration not in preprocessed_log_per_time_per_entity:
-                preprocessed_log_per_time_per_entity[time_iteration] = {}
-            templates = []
-            for template in log_per_time_per_entity[time_iteration][entity]:
-                # print(template)
-                result = template_miner.match(template)
-                if result is None:
-                    # print("none")
-                    templates.append('')
-                else:
-                    # print("hit")
-                    templates.append(result.get_template())
-            # print(templates)
-            preprocessed_log_per_time_per_entity[time_iteration][entity] = preprocess(templates)
-            # print(preprocessed_log_per_time_per_entity[time_iteration][entity])
-            # if time_iteration in error_lines:
-            #     print("Time iteration: " + str(time_iteration))
-            #     print("Entity: " + entity)
-            #     print("Log lines: " + str(preprocessed_log_per_time_per_entity[time_iteration][entity]))
-
-    # Save template miner
-    template_miner.save_state("Saving template miner...")
-
-    # Print preprocessed log lines
-    # for time_iteration in preprocessed_log_per_time_per_entity:
-    #     for entity in preprocessed_log_per_time_per_entity[time_iteration]:
-    #         print("Time iteration: " + str(time_iteration))
-    #         print("Entity: " + entity)
-    #         print("Log lines: " + str(preprocessed_log_per_time_per_entity[time_iteration][entity]))
-    #         print("")
     
     # Score log lines per entity
     scores = {}
     for entity in applications:
         scoring = Scoring()
-        for time_iteration in preprocessed_log_per_time_per_entity:
-            # print(entity)
-            # print(preprocessed_log_per_time_per_entity[time_iteration])
-            if entity in preprocessed_log_per_time_per_entity[time_iteration]:
-                scoring.add_lines(lines=preprocessed_log_per_time_per_entity[time_iteration][entity])
+        for time_iteration in log_per_time_per_entity:
+            if entity in log_per_time_per_entity[time_iteration]:
+                scoring.add_lines(lines=log_per_time_per_entity[time_iteration][entity])
             else:
                 scoring.add_lines([])
         scores[entity] = scoring.calculate_baseline_score()
@@ -175,12 +106,6 @@ if __name__ == "__main__":
     for time_iteration in log_per_time_per_entity:
         scores['Label'].append(log_per_time_per_entity[time_iteration]['label'])
         scores['Id'].append(time_iteration)
-        
-    # Print scores
-    # for entity in applications:
-    #     print("Entity: " + entity)
-    #     print("Scores: " + str(scores[entity]))
-    #     print("")
 
     # Create pandas dataframe
     df = pd.DataFrame(scores)
@@ -196,16 +121,6 @@ if __name__ == "__main__":
 
     # save to csv
     df.to_csv("./output/test230606/scoring.csv", index=False)
-
-    # Create error log
-    # error_log = open("dataset/error_log.log", "w")
-    # for time_iteration in error_lines:
-    #     error_log.write("Time iteration: " + str(time_iteration))
-    #     error_log.write("\n")
-    #     for line in error_lines[time_iteration]:
-    #         error_log.write(line)
-    #         error_log.write("\n")
-    #     error_log.write("\n")
 
     df['Label'] = np.where(df['Label'] == 'OK', 0, 1)
 
@@ -238,11 +153,11 @@ if __name__ == "__main__":
     input_dim = x_train.shape[1]
     autoencoder = MultilayerAutoEncoder(input_dim = input_dim)
     autoencoder.summary()
-    history, threshold = autoencoder.train(x_train_scaled, x_train_scaled)
-    autoencoder.evaluate(x_test_scaled, y_test, threshold)
+    history, threshold = autoencoder.train(x_train_scaled, x_train_scaled, percentile=90, visualize=True)
+    autoencoder.evaluate(x_test_scaled, y_test, threshold, visualize=True)
 
     # save model
-    save_model(autoencoder, "./output/test230606/model.pkl")
+    autoencoder.save_model("./output/test230606/model.pkl")
 
     print("Finished training.")
     print("Time: " + str(datetime.now()))
