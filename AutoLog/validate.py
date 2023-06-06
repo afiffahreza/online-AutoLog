@@ -14,8 +14,10 @@ from drain3.file_persistence import FilePersistence
 
 if __name__ == "__main__":
 
+    starting_time = datetime.now()
+
     print("Starting training...")
-    print("Time: " + str(datetime.now()))
+    print("Time: " + str(starting_time.strftime("%Y-%m-%d %H:%M:%S")))
 
     applications = ['R00','R01','R02','R03','R04','R05','R06','R07','R10','R11','R12','R13','R14','R15','R16','R17','R20',
         'R21','R22','R23','R24','R25','R26','R27','R30','R31','R32','R33','R34','R35','R36','R37','R40','R41','R42','R43',
@@ -165,7 +167,7 @@ if __name__ == "__main__":
             else:
                 scoring.add_lines([])
         scores[entity] = scoring.calculate_baseline_score()
-        scoring.save("./output/test230514/scoring_" + entity + ".pkl")
+        scoring.save("./output/test230606/scoring_" + entity + ".pkl")
     
     # Add id and label to scores
     scores['Label'] = []
@@ -193,7 +195,7 @@ if __name__ == "__main__":
     df.head()
 
     # save to csv
-    df.to_csv("./output/test230514/scoring.csv", index=False)
+    df.to_csv("./output/test230606/scoring.csv", index=False)
 
     # Create error log
     # error_log = open("dataset/error_log.log", "w")
@@ -240,7 +242,8 @@ if __name__ == "__main__":
     autoencoder.evaluate(x_test_scaled, y_test, threshold)
 
     # save model
-    save_model(autoencoder, "./output/test230514/model.pkl")
+    save_model(autoencoder, "./output/test230606/model.pkl")
 
     print("Finished training.")
     print("Time: " + str(datetime.now()))
+    print("Total time: " + str(datetime.now() - starting_time))
